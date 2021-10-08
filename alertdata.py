@@ -10,7 +10,7 @@ Subscription_list = AAS_page.embeddedin()
 #
 alert_pages = []
 for Subscription_page in Subscription_list:
-    print(Subscription_page)
+    #print(Subscription_page)
     #获取 专题页面上的所有模板及其参数
     templates_Params = Subscription_page.templatesWithParams()
     #寻找通告页面
