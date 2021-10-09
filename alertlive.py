@@ -118,7 +118,7 @@ def alertcheck(alert_page):
                                 workflows_list = ['all']
                             if workflows_list != data[1]['workflows']:
                                 data[1]['workflows'] = workflows_list
-    if cachestr != json.dumps(alert_data):              
+    if data_str != json.dumps(alert_data):              
         print('UPDATE: ',alert_data)
         with open('./alert_data/alert_data.json', 'w') as f:
             json.dump(alert_data, f)      
