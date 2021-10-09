@@ -1,5 +1,5 @@
 import datetime
-import pywikibot
+#import pywikibot
 csdcat = 'Category:快速删除候选'
 filecsd_cats = ['Category:來源不明檔案','Category:可被替代的非自由版权文件','Category:明顯侵權檔案','Category:未知版权的档案','Category:没有合理使用依据的文件','Category:未被条目使用的合理使用档案','Category:可以被取代的圖片']
 vfdcat = ['Category:条目删除候选','Category:存废讨论','Category:页面分类删除候选','Category:模板删除候选','Category:用户页删除候选']
