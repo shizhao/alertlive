@@ -127,7 +127,7 @@ def post2wiki(alert_page,workflows,cache,summary):
     #todo
     text_head ='\n'
     text =''
-    text_foot = '\n'
+    text_foot = '\n最后更新于~~~~~\n<noinclude>{{ArticleAlertbot/foot}}</noinclude>'
     alert_input = {}
 
     for kk,vv in alert_config.alert_types.items():
@@ -150,10 +150,10 @@ def post2wiki(alert_page,workflows,cache,summary):
             text_head = re.match(r'(?P<head>\{\{ArticleAlertbot.*?\}\})',wikitext,re.M|re.S).group('head') + text_head
         except AttributeError as e:
             print(e)
-        try:
-            text_foot += re.match(r'(?P<foot>\{\{ArticleAlert foot.*?\}\})',wikitext,re.M|re.S).group('foot')
-        except AttributeError as e:
-            print(e)
+        #try:
+        #    text_foot += re.match(r'(?P<foot>\{\{ArticleAlertbot\/foot.*?\}\})',wikitext,re.M|re.S).group('foot')
+        #except AttributeError as e:
+        #    print(e)
         text = text_head + text + text_foot
         print(text)
         #wikipage.text = text
