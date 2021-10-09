@@ -29,11 +29,11 @@ for Subscription_page in Subscription_list:
                         alert_pages.append(alert_page)
 
 
-alert_data = []
+#alert_data = []
 alert_template = pywikibot.Page(site, u"Template:ArticleAlertbot")
 with open('./alert_data/alert_data.json', 'r') as f:
-    local_data = json.load(f)
-local_str = json.dumps(local_data)
+    alert_data = json.load(f)
+local_str = json.dumps(alert_data)
 for alert_page in alert_pages:
     #Template:ArticleAlertbot
     if alert_page.exists() and not alert_page.isRedirectPage():
@@ -61,7 +61,7 @@ for alert_page in alert_pages:
                     
                 if banner and pywikibot.Page(site, banner).exists():
                     alert_page_temp =[]
-                    for data in local_data:
+                    for data in alert_data:
                         alert_page_temp.append(data[1]['alert_page']) 
                         if data[1]['alert_page'] == alert_page.title():
                             if banner != data[0]:
@@ -79,12 +79,7 @@ for alert_page in alert_pages:
                         alert_data.append((banner, params_data))
 
                     
-if local_str != json.dumps(local_data):              
-    print('UPDATE: ',local_data)
-    with open('./alert_data/alert_data.json', 'w') as f:
-        json.dump(local_data, f)
-
-if alert_data:
-    print(alert_data)
+if local_str != json.dumps(alert_data):              
+    print('UPDATE: ',alert_data)
     with open('./alert_data/alert_data.json', 'w') as f:
         json.dump(alert_data, f)
