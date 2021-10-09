@@ -19,6 +19,7 @@ def categorize(matchObj,change):
     dict['date'] =  time.strftime("%Y-%m-%d",time.localtime(change['timestamp']))
     dict['action'] = matchObj.group(2)
     dict['category'] = change['title']
+    dict['reason'] = ''
     #print(change)
     #print(dict)
     return dict
@@ -184,7 +185,7 @@ def process_catdata(site,stream_data,alert_type,wikitextformat,summary='',templa
                 #alerts_cache = alert_config.cache_format
                 #写入维基百科
                 stream_data['type'] = subtype
-                stream_data['reason'] = ''
+                #stream_data['reason'] = ''
                 if templates:
                     for tuple in pywikibot.Page(site, title).templatesWithParams():
                         if tuple[0].title() in templates:
