@@ -31,11 +31,7 @@ predcat = 'Category:已同行評審的條目'
 
 splitcat = 'Category:需要分割的条目'
 
-#substubcat = 'Category:%d月小小作品' % time.localtime().tm_mon
-substub =[]
-for m in range(1,13):
-    substub.append('Category:%d月小小作品' % m)
-substubcat = substub
+substubcat = ['Category:%d月小小作品' % m for m in range(1,13)]
 
 def getnotabilitycats(date, n):
     m = date.month
