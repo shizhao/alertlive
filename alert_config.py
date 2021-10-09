@@ -1,4 +1,4 @@
-import time
+import datetime
 import pywikibot
 csdcat = 'Category:快速删除候选'
 filecsd_cats = ['Category:來源不明檔案','Category:可被替代的非自由版权文件','Category:明顯侵權檔案','Category:未知版权的档案','Category:没有合理使用依据的文件','Category:未被条目使用的合理使用档案','Category:可以被取代的圖片']
@@ -37,8 +37,20 @@ for m in range(1,13):
     substub.append('Category:%d月小小作品' % m)
 substubcat = substub
 
-site = pywikibot.Site()
-notabilitycat = [catpage.title() for catpage in pywikibot.Category(site,'Category:主題關注度不足的條目').subcategories()]
+def getnotabilitycats(date, n):
+    m = date.month
+    y = date.year
+    for i in range(n):
+        if m == 1:
+            y -= 1
+            m = 12
+        else:
+            m -= 1
+    return 'Category:自%s年%s月主題關注度不足的條目' % (y, m)
+date = datetime.datetime.today()
+notabilitycat = [getnotabilitycats(date, n) for n in range(12)]
+#site = pywikibot.Site()
+#notabilitycat = [catpage.title() for catpage in pywikibot.Category(site,'Category:主題關注度不足的條目').subcategories()]
 #notabilitycat = 'Category:自%d年%d月主題關注度不足的條目' % (time.localtime().tm_year,time.localtime().tm_mon)
 
 cache_format = {'CSD':[],'FCSD':[],'VFD':[],'IFD':[],'TRANS':[],'COPYVIO':[],'DRV':[],'DYK':[],'FC':[],'GA':[],'PR':[],'SPLIT':[],'SUB':[],'FAME':[],'PP':[]}
