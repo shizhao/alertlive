@@ -21,7 +21,6 @@ def categorize(matchObj,change):
     dict['category'] = change['title']
     dict['reason'] = ''
     #print(change)
-    #print(dict)
     return dict
     
 def logdata(change):
@@ -102,10 +101,6 @@ def alertcheck(alert_page):
             #print(templates_Params)
             for Params_tuple in templates_Params:
                 if Params_tuple[0] == alert_template: #Params_tuple:  (Page('Template:ArticleAlertbotSubscription'), ['sub=條目狀態通告'])
-                    #params_data = {}
-                    #banner = data[0]
-                    #archivetime = data[1]['archivetime']
-                    #workflows_list = data[1]['workflows']
                     for Params in Params_tuple[1]:
                         
                         if Params[:7] == 'banner=' and len(Params) > 7:
@@ -169,9 +164,6 @@ def post2wiki(alert_page,workflows,cache,summary):
 #对分类改变的数据进行处理
 def process_catdata(site,stream_data,alert_type,wikitextformat,summary='',templates=None,subtype=None,with_talk=False):
     #解析分类中数据
-    #stream_data['wikitext'] = wikitextformat.format(**stream_data)
-    #stream_data = categorize(matchObj,change)
-    #print(stream_data)
     title = stream_data['title']
     talk = talkpage(site,title)
     #print(talk)
@@ -183,7 +175,6 @@ def process_catdata(site,stream_data,alert_type,wikitextformat,summary='',templa
             print(wpjdata)
             for wpj in wpjdata:
                 #alerts_cache = alert_config.cache_format
-                #写入维基百科
                 stream_data['type'] = subtype
                 #stream_data['reason'] = ''
                 if templates:
@@ -250,7 +241,6 @@ while True:
     
         #================alert页面=======================
         if change['title'] == alert_config.alertcat:
-            #模版参数变化怎么办？
             add_matchObj = re.match(alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
