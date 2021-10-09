@@ -147,7 +147,7 @@ def post2wiki(alert_page,workflows,cache,summary):
         wikipage = pywikibot.Page(site,alert_page)
         wikitext = wikipage.text
         try:
-            text_head = re.match(r'(?P<head>\{\{ArticleAlertbot.*?\}\})',wikitext,re.M|re.S).group('head') + text_head
+            text_head = re.match(r'(?P<head><noinclude>.*?</noinclude>)',wikitext,re.M|re.S).group('head') + text_head
         except AttributeError as e:
             print(e)
         #try:
