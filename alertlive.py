@@ -149,7 +149,7 @@ def post2wiki(alert_page, workflows, cache, summary):
     # todo
     text_head = '\n'
     text = ''
-    text_foot = '\n最后更新于~~~~~\n<noinclude>{{ArticleAlertbot/foot}}</noinclude>'
+    text_foot = '\n<noinclude>{{ArticleAlertbot/foot}}</noinclude>'
     alert_input = {}
 
     for kk, vv in alert_config.alert_types.items():
