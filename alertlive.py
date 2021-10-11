@@ -298,7 +298,7 @@ while True:
             add_matchObj = re.match(alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}提交{{{{SetTitle|{reason}|速删}}}}'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">速删</abbr>'
                 summary = '速删：+[[' + add_matchObj.group(1) + ']]'
                 process_catdata(site,categorize(add_matchObj,change),'CSD',wikitextformat,summary,templates = ['Template:Delete'])
             #移除分类
@@ -306,14 +306,14 @@ while True:
                 summary = '速删：-[[' + remove_matchObj.group(1) + ']]'
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
                     target = pywikibot.Page(site, remove_matchObj.group(1)).getCategoryRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}}}}}改为消歧义页'
+                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}改为消歧义页'
                 else:               
-                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}}}}}保留'
+                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site,categorize(remove_matchObj,change),'CSD',wikitextformat,summary)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -327,12 +327,12 @@ while True:
             if add_matchObj:
                 #{{SetTitle|Hyper Text Markup Language|HTML}}
                 summary = '文件速删：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}提交{{{{SetTitle|{type}|速删}}}}'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{type}">速删</abbr>'
                 process_catdata(site,categorize(add_matchObj,change),'CSD',wikitextformat,summary,subtype=change['title'].split(':',1)[1])
             #移除分类
             elif remove_matchObj:
                 summary = '文件速删：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]提交{{{{SetTitle|{type}|速删}}}}后被{{{{User|{user}}}}}保留'
+                wikitextformat = '* {date}：[[:{title}]]提交<abbr title="{type}">速删</abbr>后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site,categorize(remove_matchObj,change),'CSD',wikitextformat,summary,subtype=change['title'].split(':',1)[1])
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -354,9 +354,9 @@ while True:
                             if p.split('=',1)[0].lower() == 'date':
                                 vfddate = p.split('=',1)[1]
                 if vfddate:
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}提交{{{{SetTitle|{reason}|存废讨论}}}} -> [[Wikipedia:頁面存廢討論/記錄/%s#%s|参与讨论]]' % (vfddate, add_matchObj.group(1))
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">存废讨论</abbr> ➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|参与讨论]]' % (vfddate, add_matchObj.group(1))
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}提交{{{{SetTitle|{reason}|存废讨论}}}}'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">存废讨论</abbr>'
                 process_catdata(site,categorize(add_matchObj,change),'VFD',wikitextformat, summary,vfdtemplate)
             #移除分类
             elif remove_matchObj:
@@ -364,14 +364,14 @@ while True:
                 summary = '存废：-[[' + remove_matchObj.group(1) + ']]'
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
                     target = pywikibot.Page(site, remove_matchObj.group(1)).getCategoryRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}}}}}改为消歧义页'
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}改为消歧义页'
                 else:               
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}}}}}保留'
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site,categorize(remove_matchObj,change),'VFD',wikitextformat,summary)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -393,14 +393,14 @@ while True:
                             if p.split('=',1)[0].lower() == 'date':
                                 ifddate = p.split('=',1)[1]
                 if ifddate:
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}提交{{{{SetTitle|{reason}|文件删除讨论}}}} -> [[Wikipedia:檔案存廢討論/記錄/%s#%s|参与讨论]]' % (ifddate, add_matchObj.group(1))
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">文件删除讨论</abbr> ➡️ [[Wikipedia:檔案存廢討論/記錄/%s#%s|参与讨论]]' % (ifddate, add_matchObj.group(1))
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}提交{{{{SetTitle|{reason}|文件删除讨论}}}}'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">文件删除讨论</abbr>'
                 process_catdata(site,categorize(add_matchObj,change),'VFD',wikitextformat,summary,['Template:Ifd'])
             #移除分类
             elif remove_matchObj:
                 summary = '文件删除：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]提交文件删除讨论后被{{{{User|{user}}}}}保留'
+                wikitextformat = '* {date}：[[:{title}]]提交文件删除讨论后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site,categorize(remove_matchObj,change),'VFD',wikitextformat,summary)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -412,12 +412,12 @@ while True:
             remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = '移动到其他计划：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}建议{type}'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议{type}'
                 process_catdata(site,categorize(add_matchObj,change),'TRANS',wikitextformat,summary,subtype=change['title'].split(':',1)[1])
             #移除分类
             elif remove_matchObj:
                 summary = '移动到其他计划：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]建议{type}后被{{{{User|{user}}}}}保留'
+                wikitextformat = '* {date}：[[:{title}]]建议{type}后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site,categorize(remove_matchObj,change),'TRANS',wikitextformat,summary)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -430,12 +430,12 @@ while True:
             remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = '侵权：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}怀疑侵权'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}怀疑侵权'
                 process_catdata(site,categorize(add_matchObj,change),'COPYVIO',wikitextformat,summary)
             #移除分类
             elif remove_matchObj:
                 summary = '侵权：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}解决了侵权问题'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}解决了侵权问题'
                 process_catdata(site,categorize(remove_matchObj,change),'COPYVIO',wikitextformat,summary)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -448,12 +448,12 @@ while True:
             remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = '存废复核：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}提交存废复核'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交存废复核'
                 process_catdata(site,categorize(add_matchObj,change),'DRV',wikitextformat,summary)
             #移除分类
             elif remove_matchObj:
                 summary = '存废复核：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]提交存废复核后被{{{{User|{user}}}}}保留'
+                wikitextformat = '* {date}：[[:{title}]]提交存废复核后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site,categorize(remove_matchObj,change),'DRV',wikitextformat,summary)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -465,7 +465,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'DYK：[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被提名[[Wikipedia:新条目推荐/候选#{title}|新条目推荐候选]]'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:新条目推荐/候选#{title}|新条目推荐候选]]'
                 process_catdata(site,categorize(add_matchObj,change),'DYK',wikitextformat,summary,with_talk = True)
 
         #================DYK=======================
@@ -475,7 +475,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'DYK：+[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已通过新条目推荐 -> [[Talk:{title}#新条目推荐讨论|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'DYK',wikitextformat,summary,with_talk = True)
                 
         #================FLC,FLR重选,FLK重选维持=======================
@@ -486,14 +486,14 @@ while True:
             if add_matchObj:
                 summary = 'FL：[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
                 if pywikibot.Page(site, add_matchObj.group(1)).isTalkPage() and pywikibot.Page(site,'Template:Featured list removal candidates') in pywikibot.Page(site, add_matchObj.group(1)).templates():
-                    wikitextformat = '* {date}：[[:{title}]]正在[[Wikipedia:特色列表评选#{title}|重选特色列表]]'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:特色列表评选#{title}|重选特色列表]]'
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]正在[[Wikipedia:特色列表评选#{title}|评选特色列表]]'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:特色列表评选#{title}|评选特色列表]]'
                 process_catdata(site,categorize(add_matchObj,change),'FC',wikitextformat,summary,with_talk = True)
             elif remove_matchObj:
                 if pywikibot.Page(site, remove_matchObj.group(1)).isTalkPage() and pywikibot.Page(site,'Template:Featured list') in pywikibot.Page(site, remove_matchObj.group(1)).toggleTalkPage().templates():
                     summary = 'FL：[[' + remove_matchObj.group(1).split(':',1)[1] + ']]'
-                    wikitextformat = '* {date}：[[:{title}]]重选后维持了特色列表状态 -> [[Talk:{title}|讨论存档]]'           
+                    wikitextformat = '* {date}：[[:{title}]]重选后维持了特色列表状态 ➡️ [[Talk:{title}|讨论存档]]'           
                     process_catdata(site,categorize(remove_matchObj,change),'FC',wikitextformat,summary,with_talk = True)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -504,7 +504,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FL：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] -> [[Talk:{title}|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'FC',wikitextformat,summary)
                 
         #================FLFailed落选=======================
@@ -513,7 +513,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FL：-[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 -> [[Talk:{title}|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'FC',wikitextformat,summary,with_talk = True)
                 
         #================FFL撤销=======================
@@ -522,7 +522,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FL：-[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 -> [[Talk:{title}|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'FC',wikitextformat,summary,with_talk = True)
                 
         #================FAC，FAR，FAK=======================
@@ -532,14 +532,14 @@ while True:
             if add_matchObj:
                 summary = 'FA：[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
                 if pywikibot.Page(site, add_matchObj.group(1)).isTalkPage() and pywikibot.Page(site,'Template:Featured article review') in pywikibot.Page(site, add_matchObj.group(1)).templates():
-                    wikitextformat = '* {date}：[[:{title}]]正在[[Wikipedia:典范条目评选#{title}|重选典范条目]]'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:典范条目评选#{title}|重选典范条目]]'
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]正在[[Wikipedia:典范条目评选#{title}|评选典范条目]]'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:典范条目评选#{title}|评选典范条目]]'
                 process_catdata(site,categorize(add_matchObj,change),'FC',wikitextformat,summary,with_talk = True)
             elif remove_matchObj:
                 if pywikibot.Page(site, remove_matchObj.group(1)).isTalkPage() and pywikibot.Page(site,'Template:Featured article') in pywikibot.Page(site, remove_matchObj.group(1)).toggleTalkPage().templates():
                     summary = 'FA：+[[' + remove_matchObj.group(1).split(':',1)[1] + ']]'
-                    wikitextformat = '* {date}：[[:{title}]]重选后维持了典范条目状态 -> [[Talk:{title}|讨论存档]]'           
+                    wikitextformat = '* {date}：[[:{title}]]重选后维持了典范条目状态 ➡️ [[Talk:{title}|讨论存档]]'           
                     process_catdata(site,categorize(remove_matchObj,change),'FC',wikitextformat,summary,with_talk = True)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment']) 
@@ -550,7 +550,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FA：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] -> [[Talk:{title}|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'FC',wikitextformat,summary)
 
         #================FAF落选=======================
@@ -559,7 +559,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FA：-[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 -> [[Talk:{title}|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'FC',wikitextformat,summary,with_talk = True)
 
         #================FAL撤销=======================
@@ -568,7 +568,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FA：-[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 -> [[Talk:{title}|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'FC',wikitextformat,summary,with_talk = True)
             
         #================GAN,GAR,GAK=======================
@@ -578,9 +578,9 @@ while True:
             if add_matchObj:
                 summary = 'GA：[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
                 if pywikibot.Page(site, add_matchObj.group(1)).isTalkPage() and pywikibot.Page(site,'Template:GA reassessment') in pywikibot.Page(site, add_matchObj.group(1)).templates():
-                    wikitextformat = '* {date}：[[:{title}]]正在[[Wikipedia:優良條目評選#{title}|重选优良条目]]'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:優良條目評選#{title}|重选优良条目]]'
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]正在[[Wikipedia:優良條目評選#{title}|评选优良条目]]'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:優良條目評選#{title}|评选优良条目]]'
                 process_catdata(site,categorize(add_matchObj,change),'GA',wikitextformat,summary,with_talk = True)
             elif remove_matchObj:
                 if pywikibot.Page(site, remove_matchObj.group(1)).isTalkPage() and pywikibot.Page(site,'Template:Good article') in pywikibot.Page(site, remove_matchObj.group(1)).toggleTalkPage().templates():
@@ -596,7 +596,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'GA：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] -> [[Talk:{title}|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'GA',wikitextformat,summary)
 
         #================GAF落选=======================
@@ -605,7 +605,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'GA：-[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 -> [[Talk:{title}|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'GA',wikitextformat,summary,with_talk = True)
 
         #================GAL撤销=======================
@@ -614,7 +614,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'GA：-[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 -> [[Talk:{title}|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'GA',wikitextformat,summary,with_talk = True) 
 
         #================PR=======================
@@ -623,7 +623,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'PR：+[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]正在进行[[Wikipedia:同行评审#{title}|同行评审]]'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:同行评审#{title}|同行评审]]'
                 process_catdata(site,categorize(add_matchObj,change),'PR',wikitextformat,summary,with_talk = True)
 
          #================PR结束=======================
@@ -632,7 +632,7 @@ while True:
             #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'PR：-[[' + add_matchObj.group(1).split(':',1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已结束同行评审 -> [[Talk:{title}|讨论存档]]'
+                wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site,categorize(add_matchObj,change),'PR',wikitextformat,summary,with_talk = True)
                 
         #================拆分======================= 
@@ -642,12 +642,12 @@ while True:
             remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = '拆分：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}建议拆分'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议拆分'
                 process_catdata(site,categorize(add_matchObj,change),'SPLIT',wikitextformat,summary)
             #移除分类
             elif remove_matchObj:
                 summary = '拆分：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已经由{{{{User|{user}}}}}完成拆分'
+                wikitextformat = '* {date}：[[:{title}]]已经由{{{{User|{user}|small=1}}}}完成拆分'
                 process_catdata(site,categorize(remove_matchObj,change),'SPLIT',wikitextformat,summary)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -659,18 +659,18 @@ while True:
             remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = '小小作品：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}标记为小小作品'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}标记为小小作品'
                 process_catdata(site,categorize(add_matchObj,change),'SUB',wikitextformat,summary)
             #移除分类
             elif remove_matchObj:
                 summary = '小小作品：-[[' + remove_matchObj.group(1) + ']]'
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}改为消歧义页'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}改为消歧义页'
                 else:               
-                    wikitextformat = '* {date}：[[:{title}]]已经不是小小作品了！'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}移除了小小作品标记'
                 process_catdata(site,categorize(remove_matchObj,change),'SUB',wikitextformat,summary)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -682,18 +682,18 @@ while True:
             remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = '关注度：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}认为缺乏关注度'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}认为缺乏关注度'
                 process_catdata(site,categorize(add_matchObj,change),'FAME',wikitextformat,summary)
             #移除分类
             elif remove_matchObj:
                 summary = '关注度：-[[' + remove_matchObj.group(1) + ']]'
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}}}}}改为消歧义页'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}改为消歧义页'
                 else:               
-                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}}}}}解决了关注度问题'
+                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}移除了关注度标记'
                 process_catdata(site,categorize(remove_matchObj,change),'FAME',wikitextformat,summary)
             else:
                 print('Cannot match the comment text in categorize: %s' % change['comment'])
@@ -714,7 +714,7 @@ while True:
                     for dict in v:
                         if dict['title'] == change['title']:
                             summary = '-[[' + change['title'] + ']]已删除'
-                            wikitextformat = '* {{{{color|grey|{date}}}}}：[[:{title}]]已被{{{{User|{user}}}}}{{{{SetTitle|{reason}|删除}}}} -> {{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}'
+                            wikitextformat = '* {{{{color|grey|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                             stream_data = logdata(change)
                             stream_data['wikitext'] = wikitextformat.format(**stream_data)
                             v[i] = stream_data
@@ -732,12 +732,12 @@ while True:
             if change['log_action'] == 'protect':
                 #todo:编辑请求
                 summary = '保护：+[[' + change['title'] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}}}}}{{{{SetTitle|{reason}|保护}}}} -> {{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}'
+                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                 process_catdata(site,logdata(change),'PP',wikitextformat,summary,subtype='protect')
             #移除分类
             elif change['log_action'] == 'unprotect':
                 summary = '解除保护：-[[' + change['title'] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}}}}}{{{{SetTitle|{reason}|解除保护}}}} -> {{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}'
+                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">解除保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                 process_catdata(site,logdata(change),'PP',wikitextformat,summary,subtype='unprotect')
         #if change['log_type'] == 'move':    
         #    print(change)
