@@ -6,6 +6,7 @@ vfdcat = ['Category:条目删除候选','Category:存废讨论','Category:页面
 ifdcat = 'Category:文件删除候选'
 transwikicat = ['Category:移动到维基学院候选','Category:移动到维基导游候选', 'Category:移动到维基教科书候选', 'Category:移动到维基文库候选', 'Category:移动到维基词典候选', 'Category:移动到维基语录候选']
 copyviocat = 'Category:怀疑侵犯版权页面'
+rewritecpcat = 'Category:重写侵权页面的草稿条目'
 drvcat = 'Category:存废复核候选'
 
 dykccat = 'Category:新條目推薦候選'

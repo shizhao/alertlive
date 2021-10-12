@@ -23,7 +23,6 @@ def categorize(matchObj, change):
     dict['action'] = matchObj.group(2)
     dict['category'] = change['title']
     dict['reason'] = ''
-    # print(change)
     return dict
 
 
@@ -36,7 +35,6 @@ def logdata(change):
     dict['action'] = change['log_action']
     dict['reason'] = change['log_action_comment']
     dict['id'] = change['log_id']
-    # print(change)
     return dict
 
 # 得到某个页面的对话页
@@ -84,7 +82,6 @@ def WPJcheck(site, title):
     talk = talkpage(site, title)
     talk_template = talk.templates()
     list = []
-    # print(talk_template)
     for d in data:
         if pywikibot.Page(site, d[0]) in talk_template:  # 横幅模板是否在对话页
             list.append(d)
@@ -118,7 +115,6 @@ def alertcheck(alert_page):
             alert_template = pywikibot.Page(site, u"Template:ArticleAlertbot")
             templates_Params = pywikibot.Page(
                 site, alert_page).templatesWithParams()
-            # print(templates_Params)
             for Params_tuple in templates_Params:
                 # Params_tuple:  (Page('Template:ArticleAlertbotSubscription'), ['sub=條目狀態通告'])
                 if Params_tuple[0] == alert_template:
@@ -146,7 +142,6 @@ def alertcheck(alert_page):
 
 
 def post2wiki(alert_page, workflows, cache, summary):
-    # todo
     text_head = '\n'
     text = ''
     text_foot = '\n'
@@ -154,13 +149,11 @@ def post2wiki(alert_page, workflows, cache, summary):
 
     for kk, vv in alert_config.alert_types.items():
         alert_input[kk] = ''
-        #text += '\n;'+kk+'\n'
         for k, v in cache.items():
             if k in vv:
                 if k.lower() in workflows or workflows[0] == 'all':
                     for item in v:
                         alert_input[kk] += item['wikitext']+'\n'
-                        #text += item['wikitext']+'\n'
     for s, c in alert_input.items():
         if c:
             text += '\n;'+s+'\n'+c
@@ -201,9 +194,7 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
 
             print(wpjdata)
             for wpj in wpjdata:
-                #alerts_cache = alert_config.cache_format
                 stream_data['type'] = subtype
-                #stream_data['reason'] = ''
                 if templates:
                     for tuple in pywikibot.Page(site, title).templatesWithParams():
                         if tuple[0].title() in templates:
@@ -248,7 +239,6 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
 
 # 对分类改变的处理，弃用
 
-
 def changecat(site, change, alert_type, subtype=None):
     add_matchObj = re.match(alert_config.changecat['add'], change['comment'])
     remove_matchObj = re.match(
@@ -269,7 +259,6 @@ stream = EventStreams(streams=['recentchange'])
 stream.register_filter(wiki='zhwiki', type=('categorize', 'log'))
 while True:
     change = next(iter(stream))
-    #print('{type} on page "{title}" by "{user}" at {meta[dt]}.'.format(**change))
     # 根据分类改变来识别的alert
     if change['type'] == 'categorize':
 
@@ -285,7 +274,6 @@ while True:
                     site, u"Template:ArticleAlertbot")
                 templates_Params = pywikibot.Page(
                     site, add_matchObj.group(1)).templatesWithParams()
-                # print(templates_Params)
                 for Params_tuple in templates_Params:
                     # Params_tuple:  (Page('Template:ArticleAlertbotSubscription'), ['sub=條目狀態通告'])
                     if Params_tuple[0] == alert_template:
@@ -297,7 +285,6 @@ while True:
 
                             if Params[:7] == 'banner=' and len(Params) > 7:
                                 banner = 'Template:' + Params[7:]
-                                #params_data['banner'] = banner
 
                             elif Params[:12] == 'archivetime=' and len(Params) > 12 and Params[12:].isdigit():
                                 archivetime = int(Params[12:])
@@ -336,7 +323,6 @@ while True:
 
         # ================CSD=======================
         if change['title'] == alert_config.csdcat:
-            # changecat(site,change,'CSD')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
@@ -366,17 +352,15 @@ while True:
             else:
                 print('Cannot match the comment text in categorize: %s' %
                       change['comment'])
-            # Todo：{{hang on|理由}}，现缺少专门分类
+            # TODO：{{hang on|理由}}，现缺少专门分类
 
         # ================FCSD文件速删(与CSD合并)=======================
         elif change['title'] in alert_config.filecsd_cats:
-            # changecat(site,change,'FCSD',subtype=change['title'].split(':',1)[1])
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
                 alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
-                # {{SetTitle|Hyper Text Markup Language|HTML}}
                 summary = '文件速删：+[[' + add_matchObj.group(1) + ']]'
                 wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{type}">速删</abbr>'
                 process_catdata(site, categorize(add_matchObj, change), 'CSD',
@@ -392,9 +376,8 @@ while True:
                       change['comment'])
 
         # ================VFD=======================
-        # todo: 讨论位置，计票
+        # TODO: 讨论位置，计票
         elif change['title'] in alert_config.vfdcat:
-            # changecat(site,change,'VFD')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
@@ -420,7 +403,7 @@ while True:
                                 'VFD', wikitextformat, summary, vfdtemplate)
             # 移除分类
             elif remove_matchObj:
-                # todo：保留的不同形式：合并等
+                # TODO：保留的不同形式：合并等
                 summary = '存废：-[[' + remove_matchObj.group(1) + ']]'
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
@@ -441,9 +424,8 @@ while True:
                       change['comment'])
 
         # ================IFD（与VFD合并）=======================
-        # todo: 讨论位置，计票
+        # TODO: 讨论位置，计票
         elif change['title'] == alert_config.ifdcat:
-            # changecat(site,change,'IFD')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
@@ -478,7 +460,6 @@ while True:
 
         # ================Transwiki=======================
         elif change['title'] in alert_config.transwikicat:
-            # changecat(site,change,'Transwiki',subtype=change['title'].split(':',1)[1])
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
@@ -501,7 +482,6 @@ while True:
         # ================COPYVIO=======================
         #todo: 草稿
         elif change['title'] == alert_config.copyviocat:
-            # changecat(site,change,'COPYVIO')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
@@ -521,10 +501,56 @@ while True:
                 print('Cannot match the comment text in categorize: %s' %
                       change['comment'])
 
+        # ================重写COPYVIO=======================
+        elif change['title'] == alert_config.rewritecpcat:
+            add_matchObj = re.match(
+                alert_config.changecat['add'], change['comment'])
+            if add_matchObj:
+                alert_data = load_cache('./alert_data/alert_data.json')
+                for data in alert_data:
+                    file = data[1]['jsonfile']
+                    alert_page = data[1]['alert_page']
+                    workflows = data[1]['workflows']
+                    archivetime = data[1]['archivetime']
+                    cache = load_cache('./alert_data/'+file)
+                    cachestr = json.dumps(cache)
+
+                    for k, v in cache.items():
+                        if k == 'COPYVIO':
+                            i = 0
+                            for dict in v:
+                                try:
+                                    rwtitle = add_matchObj.group(1).split(':', 1)[1]
+                                except IndexError:
+                                    rwtitle = add_matchObj.group(1)
+                                if dict['title'] == rwtitle:
+                                    summary = '侵权重写：[[' + add_matchObj.group(1) + ']]'
+                                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}）重写于[[%s]]' % add_matchObj.group(1)
+                                    stream_data = categorize(add_matchObj, change)
+                                    stream_data['wikitext'] = wikitextformat.format(
+                                        **stream_data)
+                                    v[i] = stream_data
+                                i += 1
+                    if cachestr != json.dumps(cache):
+                        cache = dateclean(cache, archivetime)[0]
+                        archive_summary = dateclean(cache, archivetime)[1]
+                        if archive_summary:
+                            summary += archive_summary
+                        print(stream_data)
+                        print(change)
+                        print(file, cache)
+                        dump_cache('./alert_data/'+file, cache)
+                        alertcheck(alert_page)
+                        post2wiki(alert_page, workflows, cache, summary)
+
+            # TODO: 移除分类是否要处理?
+            else:
+                print('Cannot match the comment text in categorize: %s' %
+                      change['comment'])
+
         # ================DRV存废复核=======================
-        #todo: 讨论位置
+        # TODO: 讨论位置
         elif change['title'] == alert_config.drvcat:
-            # changecat(site,change,'DRV')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
@@ -546,10 +572,8 @@ while True:
 
         # ================DYKC=======================
         elif change['title'] == alert_config.dykccat:
-            # changecat(site,change,'DRV')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'DYK：[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
@@ -559,10 +583,8 @@ while True:
 
         # ================DYK=======================
         elif change['title'] == alert_config.dykcat:
-            # changecat(site,change,'DRV')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'DYK：+[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
@@ -572,7 +594,6 @@ while True:
 
         # ================FLC,FLR重选,FLK重选维持=======================
         elif change['title'] == alert_config.flccat:
-            # changecat(site,change,'DRV')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
@@ -601,7 +622,6 @@ while True:
         elif change['title'] == alert_config.flcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FL：+[[' + add_matchObj.group(1) + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}|讨论存档]]'
@@ -612,7 +632,6 @@ while True:
         elif change['title'] == alert_config.flfcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FL：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
@@ -624,7 +643,6 @@ while True:
         elif change['title'] == alert_config.fflcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FL：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
@@ -662,7 +680,6 @@ while True:
         elif change['title'] == alert_config.facat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FA：+[[' + add_matchObj.group(1) + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}|讨论存档]]'
@@ -673,7 +690,6 @@ while True:
         elif change['title'] == alert_config.fafcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
@@ -685,7 +701,6 @@ while True:
         elif change['title'] == alert_config.falcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'FA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
@@ -723,7 +738,6 @@ while True:
         elif change['title'] == alert_config.gacat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'GA：+[[' + add_matchObj.group(1) + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}|讨论存档]]'
@@ -734,7 +748,6 @@ while True:
         elif change['title'] == alert_config.gafcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'GA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
@@ -746,7 +759,6 @@ while True:
         elif change['title'] == alert_config.galcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'GA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
@@ -758,7 +770,6 @@ while True:
         elif change['title'] == alert_config.prcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'PR：+[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
@@ -766,11 +777,10 @@ while True:
                 process_catdata(site, categorize(add_matchObj, change),
                                 'PR', wikitextformat, summary, with_talk=True)
 
-         # ================PR结束=======================
+        # ================PR结束=======================
         elif change['title'] == alert_config.predcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
-            #remove_matchObj = re.match(alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = 'PR：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
@@ -780,7 +790,6 @@ while True:
 
         # ================拆分=======================
         elif change['title'] == alert_config.splitcat:
-            # changecat(site,change,'VFD')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
@@ -802,7 +811,6 @@ while True:
 
         # ================小小作品=======================
         elif change['title'] in alert_config.substubcat:
-            # changecat(site,change,'VFD')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
@@ -831,7 +839,6 @@ while True:
 
         # ================关注度=======================
         elif change['title'] in alert_config.notabilitycat:
-            # changecat(site,change,'VFD')
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             remove_matchObj = re.match(
@@ -866,6 +873,7 @@ while True:
                 file = data[1]['jsonfile']
                 alert_page = data[1]['alert_page']
                 workflows = data[1]['workflows']
+                archivetime = data[1]['archivetime']
                 cache = load_cache('./alert_data/'+file)
                 cachestr = json.dumps(cache)
 
@@ -881,17 +889,21 @@ while True:
                             v[i] = stream_data
                         i += 1
                 if cachestr != json.dumps(cache):
+                    cache = dateclean(cache, archivetime)[0]
+                    archive_summary = dateclean(cache, archivetime)[1]
+                    if archive_summary:
+                        summary += archive_summary
+                    print(stream_data)
                     print(change)
                     print(file, cache)
                     dump_cache('./alert_data/'+file, cache)
-                    #wikipage = pywikibot.Page(site,alert_page)
                     alertcheck(alert_page)
                     post2wiki(alert_page, workflows, cache, summary)
 
         # ================保护=======================
         elif change['log_type'] == 'protect':
             if change['log_action'] == 'protect':
-                # todo:编辑请求
+                # TODO:编辑请求
                 summary = '保护：+[[' + change['title'] + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                 process_catdata(site, logdata(change), 'PP',
@@ -913,7 +925,6 @@ while True:
 5.移动请求
 
 """
-#t = page.templatesWithParams()
 """
 {'title': 'Category:移動重定向', 'bot': True, 'server_name': 'zh.wikipedia.org', 'meta': {'partition': 0, 'offset': 3310430515, 'domain': 'zh.wikipedia.org', 'stream': 'mediawiki.recentchange', 'topic': 'eqiad.mediawiki.recentchange', 'id': '8747fb90-de3d-47fd-9a09-5d2bf311532f', 'uri': 'https://zh.wikipedia.org/wiki/Category:%E7%A7%BB%E5%8B%95%E9%87%8D%E5%AE%9A%E5%90%91', 'dt': '2021-09-20T13:10:03Z', 'request_id': '138f3062-477a-4cfc-bcda-4cbd8d844426'}, 'wiki': 'zhwiki', 'parsedcomment': '<a href="/wiki/User:Renbaoshuo" class="mw-redirect" title="User:Renbaoshuo">User:Renbaoshuo</a>已添加至分类', 'server_script_path': '/w', 'user': 'Jimmy Xu', 'namespace': 14, 'timestamp': 1632143403, 'comment': '[[:User:Renbaoshuo]]已添加至分类', 'server_url': 'https://zh.wikipedia.org', '$schema': '/mediawiki/recentchange/1.0.0', 'id': 138715371, 'type': 'categorize'}
 
