@@ -548,7 +548,6 @@ while True:
                       change['comment'])
 
         # ================DRV存废复核=======================
-        # TODO: 讨论位置
         elif change['title'] == alert_config.drvcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
