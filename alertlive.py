@@ -169,13 +169,13 @@ def post2wiki(alert_page, workflows, cache, summary):
         wikipage = pywikibot.Page(site, alert_page)
         wikitext = wikipage.text
         try:
-            text_head = re.match(r'(?P<head><noinclude>.*?\{\{ArticleAlertbot\|.*?\}\}.*?</noinclude>)',
-                                 wikitext, re.M | re.S).group('head') + text_head
+            text_head = re.search(r'(?P<head><noinclude>.*?\{\{ArticleAlertbot\|.*?\}\}.*?</noinclude>)',
+                                 wikitext, re.S).group('head') + text_head
         except AttributeError as e:
             print(e)
             print('text_head格式不对')
         try:
-            text_foot += re.match(r'(?P<foot><noinclude>.*?\{\{ArticleAlertbot\/foot\}\}.*?</noinclude>)',wikitext,re.M|re.S).group('foot')
+            text_foot += re.search(r'(?P<foot><noinclude>\{\{ArticleAlertbot\/foot\}\}.*?</noinclude>)',wikitext,re.S).group('foot')
         except AttributeError as e:
             print(e)
             print('text_foot格式不对或不存在')
