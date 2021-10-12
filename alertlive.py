@@ -556,13 +556,13 @@ while True:
                 alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = '存废复核：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交存废复核'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交[[Wikipedia:存廢覆核請求#{title}|存废复核]]'
                 process_catdata(site, categorize(
                     add_matchObj, change), 'DRV', wikitextformat, summary)
             # 移除分类
             elif remove_matchObj:
                 summary = '存废复核：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]提交存废复核后被{{{{User|{user}|small=1}}}}保留'
+                wikitextformat = '* {date}：[[:{title}]]提交存废复核后被{{{{User|{user}|small=1}}}}保留 ➡️ [[Wikipedia:存廢覆核請求#{title}|讨论结果]]'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'DRV', wikitextformat, summary)
             else:
