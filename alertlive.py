@@ -480,7 +480,6 @@ while True:
                       change['comment'])
 
         # ================COPYVIO=======================
-        #todo: 草稿
         elif change['title'] == alert_config.copyviocat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
