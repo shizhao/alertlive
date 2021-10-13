@@ -3,7 +3,6 @@ import re
 import pywikibot
 import time
 
-
 qstat_fullout = os.popen('qstat').read()
 
 qstat_moreout = os.popen('qstat -j alertlive-beta').read()
@@ -12,13 +11,16 @@ def qstat_status():
     qstat = os.popen('qstat')
     qstat_out = qstat.read()
     if 'alertlive' in qstat_out:
-        #print (qstat_out)
-        status = re.search(r'\d(.*?\s){2}alertlive(.*?\s){2}(?P<status>r|qw|d|E|s)',qstat_out,re.S).group('status')
-        alert_line = re.search(r'\n(?P<alert>\d.*?alertlive.*?)\n',qstat_out,re.S).group('alert')
+        # print (qstat_out)
+        status = re.search(
+            r'\d(.*?\s){2}alertlive(.*?\s){2}(?P<status>r|qw|d|E|s)', qstat_out, re.S).group('status')
+        alert_line = re.search(
+            r'\n(?P<alert>\d.*?alertlive.*?)\n', qstat_out, re.S).group('alert')
     else:
         status = 'd'
         alert_line = ''
-    return (qstat_out,alert_line,status)
+    return (qstat_out, alert_line, status)
+
 
 def status_out(qstat_data):
     status = qstat_data[2]
@@ -40,9 +42,11 @@ def status_out(qstat_data):
 <syntaxhighlight lang="shell-session">
 %s
 </syntaxhighlight>
+== 参看 ==
+* [[toolforge:sge-jobs/tool/alertlive|在线查看运行状态]]
 </noinclude>"""
     text = text % (status, status, status, qstat_fullout, qstat_moreout)
-    #print(text)
+    # print(text)
     site = pywikibot.Site()
     page = pywikibot.Page(site, 'User:Alertlivebot/Status')
     #wikitext = page.text
@@ -64,7 +68,7 @@ while True:
         print(qstat_data[0])
         print('Status: ', qstat_data[2])
         initstatus = alert_line
-        print ('Status change, sleep...')
-    #else:
+        print('Status change, sleep...')
+    # else:
     #    print ('Status not change, sleep...')
     time.sleep(1000)
