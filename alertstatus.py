@@ -51,7 +51,7 @@ def status_out(qstat_data):
     page = pywikibot.Page(site, 'User:Alertlivebot/Status')
     #wikitext = page.text
     page.text = text
-    page.save('bot status update')
+    page.save('bot status update: %s' % status)
 
 qstat_data = qstat_status()
 initstatus = qstat_data[1]
