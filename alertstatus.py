@@ -67,4 +67,4 @@ while True:
         print ('Status change, sleep...')
     #else:
     #    print ('Status not change, sleep...')
-    time.sleep(30)
+    time.sleep(1000)
