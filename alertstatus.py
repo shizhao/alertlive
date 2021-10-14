@@ -3,9 +3,6 @@ import re
 import pywikibot
 import time
 
-qstat_fullout = os.popen('qstat').read()
-
-qstat_moreout = os.popen('qstat -j alertlive-beta').read()
 
 def qstat_status():
     qstat = os.popen('qstat')
@@ -14,12 +11,15 @@ def qstat_status():
         # print (qstat_out)
         status = re.search(
             r'\d(.*?\s){2}alertlive(.*?\s){2}(?P<status>r|qw|d|E|s)', qstat_out, re.S).group('status')
-        alert_line = re.search(
-            r'\n(?P<alert>\d.*?alertlive.*?)\n', qstat_out, re.S).group('alert')
+        # alert_line = re.search(
+        #    r'\n(?P<alert>\d.*?alertlive.*?)\n', qstat_out, re.S).group('alert')
+        check = int(re.search(
+            r'\n(\d*)\s0.(?P<check>\d*)\salertlive', qstat_out, re.S).group('check'))
     else:
         status = 'd'
-        alert_line = ''
-    return (qstat_out, alert_line, status)
+        # alert_line = ''
+        check = 0
+    return (qstat_out, check, status)
 
 
 def status_out(qstat_data):
@@ -49,26 +49,31 @@ def status_out(qstat_data):
     # print(text)
     site = pywikibot.Site()
     page = pywikibot.Page(site, 'User:Alertlivebot/Status')
-    #wikitext = page.text
+    # wikitext = page.text
     page.text = text
     page.save('bot status update: %s' % status)
 
+
 qstat_data = qstat_status()
-initstatus = qstat_data[1]
+initstatus = qstat_data[2]
+initcheck = qstat_data[1]
 status_out(qstat_data)
 print(qstat_data[0])
-print('init Status: ', qstat_data[2])
+print('init Status: ', initstatus)
 
 while True:
 
     qstat_data = qstat_status()
-    alert_line = qstat_data[1]
-    if alert_line != initstatus:
+    status = qstat_data[2]
+    # alert_line = qstat_data[1]
+    check = qstat_data[1]
+    if status != initstatus or abs(check - initcheck) > 10:
         status_out(qstat_data)
         print(qstat_data[0])
-        print('Status: ', qstat_data[2])
-        initstatus = alert_line
+        print('Status: ', status)
+        initstatus = status
+        initcheck = check
         print('Status change, sleep...')
     # else:
     #    print ('Status not change, sleep...')
-    time.sleep(1000)
+    time.sleep(500)
