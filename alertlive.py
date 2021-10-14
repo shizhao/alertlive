@@ -863,7 +863,57 @@ while True:
                 print('Cannot match the comment text in categorize: %s' %
                       change['comment'])
 
+        # ================MV移动请求=======================
+        elif change['title'] in alert_config.rmvcat:
+            add_matchObj = re.match(
+                alert_config.changecat['add'], change['comment'])
+            if add_matchObj:
+                summary = '移动请求：+[[' + add_matchObj.group(1) + ']]'
+                for tuple in pywikibot.Page(site, add_matchObj.group(1)).templatesWithParams():
+                    if tuple[0].title() == 'Template:Requested move':
+                        if tuple[1]:
+                            for t in tuple[1]:
+                                if '=' not in t:
+                                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}请求移动到[[%s]]' % t
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}请求移动到新名称'                           
+                        process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary)
+
+        elif change['title'] in alert_config.rmcdonecat:
+            add_matchObj = re.match(
+                alert_config.changecat['add'], change['comment'])
+            if add_matchObj:
+                summary = '移动请求：-[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]已完成了移动请求 ➡️ [[%s|讨论存档]]' % add_matchObj.group(1)                       
+                process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+
+        elif change['title'] in alert_config.rmcndcat:
+            add_matchObj = re.match(
+                alert_config.changecat['add'], change['comment'])
+            if add_matchObj:
+                summary = '移动请求：-[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]的移动请求已被拒绝 ➡️ [[%s|讨论存档]]' % add_matchObj.group(1)                       
+                process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+
+        elif change['title'] in alert_config.rmcnmcat:
+            add_matchObj = re.match(
+                alert_config.changecat['add'], change['comment'])
+            if add_matchObj:
+                summary = '移动请求：[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]的移动请求已讨论通过，等待处理 ➡️ [[%s|讨论存档]]' % add_matchObj.group(1)                       
+                process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+
+        elif change['title'] in alert_config.rmccat:
+            add_matchObj = re.match(
+                alert_config.changecat['add'], change['comment'])
+            if add_matchObj:
+                summary = '移动请求：[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]的移动请求正在讨论 ➡️ [[%s|参与讨论]]' % add_matchObj.group(1)                       
+                process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+
+
     if change['type'] == 'log':
+        # ================删除相关=======================
         if change['log_type'] == 'delete' and change['log_action'] == 'delete':
             path = './alert_data/'
             alert_data = load_cache('./alert_data/alert_data.json')

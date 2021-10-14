@@ -32,6 +32,12 @@ predcat = 'Category:已同行評審的條目'
 
 splitcat = 'Category:需要分割的条目'
 
+rmvcat = 'Category:移動請求'
+rmcdonecat = 'Category:已完成的移动请求'
+rmcndcat = 'Category:已拒绝的移动请求'
+rmcnmcat = 'Category:待处理的移动请求'
+rmccat = 'Category:討論中的移動請求'
+
 substubcat = ['Category:%d月小小作品' % m for m in range(1,13)]
 
 def getnotabilitycats(date, n):
@@ -50,10 +56,10 @@ notabilitycat = [getnotabilitycats(date, n) for n in range(12)]
 #notabilitycat = [catpage.title() for catpage in pywikibot.Category(site,'Category:主題關注度不足的條目').subcategories()]
 #notabilitycat = 'Category:自%d年%d月主題關注度不足的條目' % (time.localtime().tm_year,time.localtime().tm_mon)
 
-cache_format = {'CSD':[],'FCSD':[],'VFD':[],'IFD':[],'TRANS':[],'COPYVIO':[],'DRV':[],'DYK':[],'FC':[],'GA':[],'PR':[],'SPLIT':[],'SUB':[],'FAME':[],'PP':[]}
+cache_format = {'CSD':[],'FCSD':[],'VFD':[],'IFD':[],'TRANS':[],'COPYVIO':[],'DRV':[],'DYK':[],'FC':[],'GA':[],'PR':[],'SPLIT':[],'SUB':[],'FAME':[],'PP':[],'MV':[]}
 
 changecat = {'add': r'^\[\[:(.*?)\]\]已(.*?)至分类', 'remove':r'^\[\[:(.*?)\]\]已从分类中(.*?)(，|$)'}
 alertcat = 'Category:用于专题的条目通告'
 
 
-alert_types = {'页面存废':['VFD','IFD','DRV'],'侵权':['COPYVIO'],'快速删除':['CSD','FCSD'],'新条目推荐':['DYK'],'特色内容':['FC'],'优良条目':['GA'],'同行评审':['PR'],'拆分':['SPLIT'],'小小作品':['SUB'],'关注度':['FAME'],'保护':['PP'],'迁移到其他计划':['TRANS']}
+alert_types = {'页面存废':['VFD','IFD','DRV'],'侵权':['COPYVIO'],'快速删除':['CSD','FCSD'],'新条目推荐':['DYK'],'特色内容':['FC'],'优良条目':['GA'],'同行评审':['PR'],'拆分':['SPLIT'],'小小作品':['SUB'],'关注度':['FAME'],'保护':['PP'],'迁移到其他计划':['TRANS'],'移动请求':['MV']}
