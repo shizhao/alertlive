@@ -788,6 +788,7 @@ while True:
                                 'PR', wikitextformat, summary, with_talk=True)
 
         # ================拆分=======================
+        # TODO: 拆分成哪些页面
         elif change['title'] == alert_config.splitcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
@@ -865,7 +866,7 @@ while True:
                       change['comment'])
 
         # ================MV移动请求=======================
-        elif change['title'] in alert_config.rmvcat:
+        elif change['title'] == alert_config.rmvcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
@@ -880,7 +881,7 @@ while True:
                             wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}请求移动到新名称'                           
                         process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary)
 
-        elif change['title'] in alert_config.rmcdonecat:
+        elif change['title'] == alert_config.rmcdonecat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
@@ -888,7 +889,7 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]已完成了移动请求 ➡️ [[%s|讨论存档]]' % add_matchObj.group(1)                       
                 process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
 
-        elif change['title'] in alert_config.rmcndcat:
+        elif change['title'] == alert_config.rmcndcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
@@ -896,7 +897,7 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]的移动请求已被拒绝 ➡️ [[%s|讨论存档]]' % add_matchObj.group(1)                       
                 process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
 
-        elif change['title'] in alert_config.rmcnmcat:
+        elif change['title'] == alert_config.rmcnmcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
@@ -904,7 +905,7 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]的移动请求已讨论通过，等待处理 ➡️ [[%s|讨论存档]]' % add_matchObj.group(1)                       
                 process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
 
-        elif change['title'] in alert_config.rmccat:
+        elif change['title'] == alert_config.rmccat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
@@ -912,7 +913,88 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]的移动请求正在讨论 ➡️ [[%s|参与讨论]]' % add_matchObj.group(1)                       
                 process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
 
+        # ================MM合并=======================
+        # TODO: [[Template:Merge approved]]的处理？
+        elif change['title'] in alert_config.mmcat or re.search(alert_config.mmrecat, change['title']):
+            add_matchObj = re.match(
+                alert_config.changecat['add'], change['comment'])
+            remove_matchObj = re.match(
+                alert_config.changecat['remove'], change['comment'])
+            if add_matchObj:
+                summary = '合并：+[[' + add_matchObj.group(1) + ']]'
+                for tuple in pywikibot.Page(site, add_matchObj.group(1)).templatesWithParams():
+                    mmitem = []
+                    if tuple[0].title() == 'Template:Merge from':
+                        if tuple[1]:
+                            for t in tuple[1]:
+                                if '=' not in t:
+                                    mmitem.append(t)
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                        if mmitem:
+                            mmstr = ']]、[['.join(mmitem)
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议将[[%s]]合并到本页' % mmstr
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                    elif tuple[0].title() == 'Template:Merge to':
+                        if tuple[1]:
+                            for t in tuple[1]:
+                                if '=' not in t:
+                                    mmitem.append(t)
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                        if mmitem:
+                            mmstr = ']]、[['.join(mmitem)
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并到[[%s]]' % mmstr
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                    elif tuple[0].title() == 'Template:Merge':
+                        if tuple[1]:
+                            for t in tuple[1]:
+                                if '=' not in t:
+                                    mmitem.append(t)
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                        if mmitem:
+                            mmstr = ']]、[['.join(mmitem)
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议与[[%s]]合并' % mmstr
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                    elif tuple[0].title() == 'Template:Merging':
+                        if tuple[1]:
+                            for t in tuple[1]:
+                                if '=' not in t:
+                                    mmitem.append(t)
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划合并'
+                        if mmitem:
+                            mmstr = ']]、[['.join(mmitem)
+                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划与[[%s]]合并' % mmstr
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划合并'
+                process_catdata(site, categorize(
+                    add_matchObj, change), 'MM', wikitextformat, summary)
+            # 移除分类
+            elif remove_matchObj:
+                summary = '合并：-[[' + remove_matchObj.group(1) + ']]'
+                if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
+                    target = pywikibot.Page(
+                        site, remove_matchObj.group(1)).getRedirectTarget()
+                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并到[[:%s]]' % target.title()
+                elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
+                    target = pywikibot.Page(site, remove_matchObj.group(
+                        1)).getCategoryRedirectTarget()
+                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并到[[:%s]]' % target.title()
+                elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
+                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并后改为消歧义页'
+                elif not pywikibot.Page(site, remove_matchObj.group(1)).exists():
+                    wikitextformat = '* {date}：[[:{title}]]在解决了合并问题后被删除'
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}解决了合并问题'
+                process_catdata(site, categorize(
+                    remove_matchObj, change), 'MM', wikitextformat, summary)
 
+    # log操作
     if change['type'] == 'log':
         # ================删除相关=======================
         if change['log_type'] == 'delete' and change['log_action'] == 'delete':

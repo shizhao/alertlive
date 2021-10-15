@@ -52,14 +52,50 @@ def getnotabilitycats(date, n):
     return 'Category:自%s年%s月主題關注度不足的條目' % (y, m)
 date = datetime.datetime.today()
 notabilitycat = [getnotabilitycats(date, n) for n in range(12)]
-#site = pywikibot.Site()
-#notabilitycat = [catpage.title() for catpage in pywikibot.Category(site,'Category:主題關注度不足的條目').subcategories()]
-#notabilitycat = 'Category:自%d年%d月主題關注度不足的條目' % (time.localtime().tm_year,time.localtime().tm_mon)
 
-cache_format = {'CSD':[],'FCSD':[],'VFD':[],'IFD':[],'TRANS':[],'COPYVIO':[],'DRV':[],'DYK':[],'FC':[],'GA':[],'PR':[],'SPLIT':[],'SUB':[],'FAME':[],'PP':[],'MV':[]}
+mmcat = ['Category:需要合併的條目','Category:需要合併的非條目頁面']
+mmrecat = r'自\d{4}年\d*月需要合併的條目'
 
-changecat = {'add': r'^\[\[:(.*?)\]\]已(.*?)至分类', 'remove':r'^\[\[:(.*?)\]\]已从分类中(.*?)(，|$)'}
+cache_format = {
+    'CSD': [],
+    'FCSD': [],
+    'VFD': [],
+    'IFD': [],
+    'TRANS': [],
+    'COPYVIO': [],
+    'DRV': [],
+    'DYK': [],
+    'FC': [],
+    'GA': [],
+    'PR': [],
+    'SPLIT': [],
+    'SUB': [],
+    'FAME': [],
+    'PP': [],
+    'MV': [],
+    'MM': []
+}
+
+changecat = {
+    'add': r'^\[\[:(.*?)\]\]已(.*?)至分类',
+    'remove': r'^\[\[:(.*?)\]\]已从分类中(.*?)(，|$)'
+}
+
 alertcat = 'Category:用于专题的条目通告'
 
-
-alert_types = {'页面存废':['VFD','IFD','DRV'],'侵权':['COPYVIO'],'快速删除':['CSD','FCSD'],'新条目推荐':['DYK'],'特色内容':['FC'],'优良条目':['GA'],'同行评审':['PR'],'拆分':['SPLIT'],'小小作品':['SUB'],'关注度':['FAME'],'保护':['PP'],'迁移到其他计划':['TRANS'],'移动请求':['MV']}
+alert_types = {
+    '页面存废': ['VFD', 'IFD', 'DRV'],
+    '侵权': ['COPYVIO'],
+    '快速删除': ['CSD', 'FCSD'],
+    '新条目推荐': ['DYK'],
+    '特色内容': ['FC'],
+    '优良条目': ['GA'],
+    '同行评审': ['PR'],
+    '拆分': ['SPLIT'],
+    '小小作品': ['SUB'],
+    '关注度': ['FAME'],
+    '保护': ['PP'],
+    '迁移到其他计划': ['TRANS'],
+    '移动请求': ['MV'],
+    '合并': ['MM']
+}
