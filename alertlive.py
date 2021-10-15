@@ -154,6 +154,8 @@ def post2wiki(alert_page, workflows, cache, summary):
                 if k.lower() in workflows or workflows[0] == 'all':
                     for item in v:
                         alert_input[kk] += item['wikitext']+'\n'
+                else:
+                    print('workflows参数没有使用规定值')
     for s, c in alert_input.items():
         if c:
             text += '\n;'+s+'\n'+c
@@ -178,7 +180,7 @@ def post2wiki(alert_page, workflows, cache, summary):
         #wikipage.text = text
         # wikipage.save(summary)
     else:
-        print('workflows参数没有使用规定值')
+        print('text没有数据')
 
 # 对分类改变的数据进行处理
 
@@ -543,9 +545,6 @@ while True:
                         post2wiki(alert_page, workflows, cache, summary)
 
             # TODO: 移除分类是否要处理?
-            else:
-                print('Cannot match the comment text in categorize: %s' %
-                      change['comment'])
 
         # ================DRV存废复核=======================
         elif change['title'] == alert_config.drvcat:
@@ -956,7 +955,7 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                 process_catdata(site, logdata(change), 'PP',
                                 wikitextformat, summary, subtype='protect')
-            # 移除分类
+            # 解除保护
             elif change['log_action'] == 'unprotect':
                 summary = '解除保护：-[[' + change['title'] + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">解除保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
