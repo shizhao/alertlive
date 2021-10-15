@@ -175,12 +175,14 @@ def post2wiki(alert_page, workflows, cache, summary):
             print(e)
             print('text_foot格式不对或不存在')
             text_foot += '<noinclude>{{ArticleAlertbot/foot}}</noinclude>'
-        text = text_head + text + text_foot
-        print(text)
-        #wikipage.text = text
-        # wikipage.save(summary)
     else:
         print('text没有数据')
+        text = '目前没有新的条目状态通告。'
+    text = text_head + text + text_foot
+    print(text)
+    #wikipage.text = text
+    # wikipage.save(summary)
+    
 
 # 对分类改变的数据进行处理
 
