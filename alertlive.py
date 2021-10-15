@@ -910,7 +910,7 @@ while True:
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
                 summary = '移动请求：[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]的移动请求正在讨论 ➡️ [[%s|参与讨论]]' % add_matchObj.group(1)                       
+                wikitextformat = '* {date}：[[:{title}]]的移动请求[[%s|正在讨论]]' % add_matchObj.group(1)                       
                 process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
 
         # ================MM合并=======================
