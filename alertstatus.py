@@ -67,7 +67,7 @@ while True:
     status = qstat_data[2]
     # alert_line = qstat_data[1]
     check = qstat_data[1]
-    if status != initstatus or abs(check - initcheck) > 20:
+    if status != initstatus or abs(check - initcheck) > 100:
         status_out(qstat_data)
         print(qstat_data[0])
         print('Status: ', status)
