@@ -84,7 +84,8 @@ changecat = {
 alertcat = 'Category:用于专题的条目通告'
 
 alert_types = {
-    '页面存废': ['VFD', 'IFD', 'DRV'],
+    '页面存废': ['VFD', 'IFD'],
+    '存废复核':['DRV'],
     '侵权': ['COPYVIO'],
     '快速删除': ['CSD', 'FCSD'],
     '新条目推荐': ['DYK'],

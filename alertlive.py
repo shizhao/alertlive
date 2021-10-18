@@ -14,27 +14,31 @@ site = pywikibot.Site()
 # 解析streams中的分类数据（添加或移除），返回dict数据
 
 
-def categorize(matchObj, change):
-    dict = {}
-    dict['title'] = matchObj.group(1)
-    dict['user'] = change['user']
-    dict['date'] = time.strftime(
-        "%Y-%m-%d", time.localtime(change['timestamp']))
-    dict['action'] = matchObj.group(2)
-    dict['category'] = change['title']
-    dict['reason'] = ''
+def categorize(matchObj, change, **kwargs):
+    dict = {'title': matchObj.group(1),
+            'user': change['user'],
+            'date': time.strftime(
+            "%Y-%m-%d", time.localtime(change['timestamp'])),
+            'action': matchObj.group(2),
+            'category': change['title'],
+            'reason': '',
+            'talkat': ''
+            }
+    if 'talkat' in kwargs:
+        dict['talkat'] = kwargs['talkat']
     return dict
 
 
 def logdata(change):
-    dict = {}
-    dict['title'] = change['title']
-    dict['user'] = change['user']
-    dict['date'] = time.strftime(
-        "%Y-%m-%d", time.localtime(change['timestamp']))
-    dict['action'] = change['log_action']
-    dict['reason'] = change['log_action_comment']
-    dict['id'] = change['log_id']
+    dict = {
+        'title': change['title'],
+        'user': change['user'],
+        'date': time.strftime(
+            "%Y-%m-%d", time.localtime(change['timestamp'])),
+        'action': change['log_action'],
+        'reason': change['log_action_comment'],
+        'id': change['log_id'],
+    }
     return dict
 
 # 得到某个页面的对话页
@@ -182,7 +186,7 @@ def post2wiki(alert_page, workflows, cache, summary):
     print(text)
     #wikipage.text = text
     # wikipage.save(summary)
-    
+
 
 # 对分类改变的数据进行处理
 
@@ -224,6 +228,9 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                     n = 0
                     for i in range(len(cache_copy)):
                         if cache_type[i]['title'] == stream_data['title']:
+                            stream_data['talkat'] = cache_type[i]['talkat']
+                            if stream_data['talkat']:
+                                stream_data['wikitext'] = wikitextformat.format(**stream_data)
                             cache_type[i] = stream_data
                         else:
                             n += 1
@@ -339,6 +346,7 @@ while True:
             # 移除分类
             elif remove_matchObj:
                 summary = '速删：-[[' + remove_matchObj.group(1) + ']]'
+                # stream_data = categorize(remove_matchObj, change)
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
                         site, remove_matchObj.group(1)).getRedirectTarget()
@@ -380,7 +388,7 @@ while True:
                       change['comment'])
 
         # ================VFD=======================
-        # TODO: 讨论位置，计票
+        # TODO: 计票
         elif change['title'] in alert_config.vfdcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
@@ -399,11 +407,12 @@ while True:
                             if p.split('=', 1)[0].lower() == 'date':
                                 vfddate = p.split('=', 1)[1]
                 if vfddate:
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">存废讨论</abbr> ➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|参与讨论]]' % (
-                        vfddate, add_matchObj.group(1))
+                    talkat = '➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|讨论存档]]' % (vfddate, add_matchObj.group(1))
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">存废讨论</abbr> ➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|参与讨论]]' % (vfddate, add_matchObj.group(1))
                 else:
+                    talkat = ''
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">存废讨论</abbr>'
-                process_catdata(site, categorize(add_matchObj, change),
+                process_catdata(site, categorize(add_matchObj, change,talkat=talkat),
                                 'VFD', wikitextformat, summary, vfdtemplate)
             # 移除分类
             elif remove_matchObj:
@@ -412,15 +421,15 @@ while True:
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
                         site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]] {talkat}' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
                     target = pywikibot.Page(site, remove_matchObj.group(
                         1)).getCategoryRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]] {talkat}' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}改为消歧义页'
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}改为消歧义页 {talkat}'
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}保留'
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}保留 {talkat}'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'VFD', wikitextformat, summary)
             else:
@@ -428,7 +437,7 @@ while True:
                       change['comment'])
 
         # ================IFD（与VFD合并）=======================
-        # TODO: 讨论位置，计票
+        # TODO: 计票
         elif change['title'] == alert_config.ifdcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
@@ -446,16 +455,19 @@ while True:
                             if p.split('=', 1)[0].lower() == 'date':
                                 ifddate = p.split('=', 1)[1]
                 if ifddate:
+                    talkat = '➡️ [[Wikipedia:檔案存廢討論/記錄/%s#%s|讨论存档]]' % (
+                        ifddate, add_matchObj.group(1))
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">文件删除讨论</abbr> ➡️ [[Wikipedia:檔案存廢討論/記錄/%s#%s|参与讨论]]' % (
                         ifddate, add_matchObj.group(1))
                 else:
+                    talkat = ''
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">文件删除讨论</abbr>'
-                process_catdata(site, categorize(add_matchObj, change),
+                process_catdata(site, categorize(add_matchObj, change, talkat=talkat),
                                 'VFD', wikitextformat, summary, ['Template:Ifd'])
             # 移除分类
             elif remove_matchObj:
                 summary = '文件删除：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]提交文件删除讨论后被{{{{User|{user}|small=1}}}}保留'
+                wikitextformat = '* {date}：[[:{title}]]提交文件删除讨论后被{{{{User|{user}|small=1}}}}保留 {talkat}'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'VFD', wikitextformat, summary)
             else:
@@ -463,6 +475,7 @@ while True:
                       change['comment'])
 
         # ================Transwiki=======================
+        # TODO: 讨论位置，计票
         elif change['title'] in alert_config.transwikicat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
