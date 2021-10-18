@@ -26,6 +26,8 @@ def categorize(matchObj, change, **kwargs):
             }
     if 'talkat' in kwargs:
         dict['talkat'] = kwargs['talkat']
+    if 'moveto' in kwargs:
+        dict['moveto'] = kwargs['moveto']
     return dict
 
 
@@ -889,10 +891,12 @@ while True:
                         if tuple[1]:
                             for t in tuple[1]:
                                 if '=' not in t:
+                                    moveto = t
                                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}请求移动到[[%s]]' % t
                         else:
+                            moveto = ''
                             wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}请求移动到新名称'                           
-                        process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary)
+                        process_catdata(site,  categorize(add_matchObj, change,moveto=moveto), 'MV', wikitextformat, summary)
 
         elif change['title'] == alert_config.rmcdonecat:
             add_matchObj = re.match(
@@ -1058,15 +1062,14 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">解除保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                 process_catdata(site, logdata(change), 'PP',
                                 wikitextformat, summary, subtype='unprotect')
-        # if change['log_type'] == 'move':
-        #    print(change)
+        elif change['log_type'] == 'move':
+            print(change)
+        #TBD
 
 
 """TODO: 
-2.合并
 3.今日首页（特色，优良，ITN？）
 4.新建条目？
-5.移动请求
 
 """
 """
