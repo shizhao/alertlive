@@ -1030,8 +1030,9 @@ while True:
                     for dict in v:
                         if dict['title'] == change['title']:
                             summary = '-[[' + change['title'] + ']]已删除'
-                            wikitextformat = '* {{{{color|grey|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
+                            wikitextformat = '* {{{{color|grey|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
                             stream_data = logdata(change)
+                            stream_data['talkat'] = dict['talkat']
                             stream_data['wikitext'] = wikitextformat.format(
                                 **stream_data)
                             v[i] = stream_data
