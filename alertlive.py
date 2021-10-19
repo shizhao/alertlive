@@ -1087,7 +1087,7 @@ while True:
                         for dict in v:
                             if dict['title'] == change['title']:
                                 summary = '移动：-[[' + change['title'] + ']]'
-                                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">移动到</abbr>[[{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
+                                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">移动到</abbr>[[:{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                                 stream_data = logdata(change)
                                 stream_data['wikitext'] = wikitextformat.format(
                                     **stream_data)
