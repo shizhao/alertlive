@@ -230,9 +230,10 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                     n = 0
                     for i in range(len(cache_copy)):
                         if cache_type[i]['title'] == stream_data['title']:
-                            stream_data['talkat'] = cache_type[i]['talkat']
-                            if stream_data['talkat']:
-                                stream_data['wikitext'] = wikitextformat.format(**stream_data)
+                            if 'talkat' in cache_type[i]:
+                                stream_data['talkat'] = cache_type[i]['talkat']
+                                if stream_data['talkat']:
+                                    stream_data['wikitext'] = wikitextformat.format(**stream_data)
                             cache_type[i] = stream_data
                         else:
                             n += 1
