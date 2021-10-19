@@ -1072,10 +1072,38 @@ while True:
                                 wikitextformat, summary, subtype='unprotect')
         # ================移动=======================
         elif change['log_type'] == 'move':
-            summary = '移动：-[[' + change['title'] + ']]'
-            wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">移动到</abbr>[[{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
-            process_catdata(site, logdata(change), 'MV',
-                            wikitextformat, summary, subtype=change['log_action'])
+            alert_data = load_cache('./alert_data/alert_data.json')
+            for data in alert_data:
+                file = data[1]['jsonfile']
+                alert_page = data[1]['alert_page']
+                workflows = data[1]['workflows']
+                archivetime = data[1]['archivetime']
+                cache = load_cache('./alert_data/'+file)
+                cachestr = json.dumps(cache)
+
+                for k, v in cache.items():
+                    if k =='MV':
+                        i = 0
+                        for dict in v:
+                            if dict['title'] == change['title']:
+                                summary = '移动：-[[' + change['title'] + ']]'
+                                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">移动到</abbr>[[{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
+                                stream_data = logdata(change)
+                                stream_data['wikitext'] = wikitextformat.format(
+                                    **stream_data)
+                                v[i] = stream_data
+                            i += 1
+                if cachestr != json.dumps(cache):
+                    cache = dateclean(cache, archivetime)[0]
+                    archive_summary = dateclean(cache, archivetime)[1]
+                    if archive_summary:
+                        summary += archive_summary
+                    print(stream_data)
+                    print(change)
+                    print(file, cache)
+                    dump_cache('./alert_data/'+file, cache)
+                    alertcheck(alert_page)
+                    post2wiki(alert_page, workflows, cache, summary)
 
 
 """TODO: 
