@@ -1036,7 +1036,10 @@ while True:
                             summary = '-[[' + change['title'] + ']]已删除'
                             wikitextformat = '* {{{{color|grey|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
                             stream_data = logdata(change)
-                            stream_data['talkat'] = dict['talkat']
+                            if 'talkat' in dict:
+                                stream_data['talkat'] = dict['talkat']
+                            else:
+                                stream_data['talkat'] = ''
                             stream_data['wikitext'] = wikitextformat.format(
                                 **stream_data)
                             v[i] = stream_data
