@@ -41,6 +41,9 @@ def logdata(change):
         'reason': change['log_action_comment'],
         'id': change['log_id'],
     }
+    if 'log_params' in change:
+        if 'target' in change['log_params']:
+            dict['moveto'] = change['log_params']['target']
     return dict
 
 # 得到某个页面的对话页
@@ -1064,9 +1067,12 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">解除保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                 process_catdata(site, logdata(change), 'PP',
                                 wikitextformat, summary, subtype='unprotect')
+        # ================移动=======================
         elif change['log_type'] == 'move':
-            print(change)
-        #TBD
+            summary = '移动：-[[' + change['title'] + ']]'
+            wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">移动到</abbr>[[{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
+            process_catdata(site, logdata(change), 'MV',
+                            wikitextformat, summary, subtype=change['log_action'])
 
 
 """TODO: 
@@ -1088,15 +1094,13 @@ User:激鬥峽谷已从分类中移除
 """
 
 """
-{'type': 'log', 'server_url': 'https://zh.wikipedia.org', 'user': 'Qetuoiyrw', 'server_name': 'zh.wikipedia.org', 'timestamp': 1632646446, '$schema': '/mediawiki/recentchange/1.0.0', 'log_action': 'hit', 'namespace': 0, 'log_id': 0, 'log_action_comment': 'Qetuoiyrw 於 [[雲林縣私立淵明國民中學]] 執行操作 "edit" 已觸發 [[Special:滥用过滤器/223|過濾器 223]]。採取的動作：標籤 ([[Special:滥用日志/3934453|詳細資料]])', 'log_params': {'filter': '223', 'action': 'edit', 'log': 3934453, 'actions': 'tag'}, 'parsedcomment': '', 'bot': False, 'meta': {'id': 'eb92d68c-bdbb-4182-ac56-e43c741cb785', 'stream': 'mediawiki.recentchange', 'partition': 0, 'topic': 'eqiad.mediawiki.recentchange', 'dt': '2021-09-26T08:54:06Z', 'request_id': '46efdb15-d7d9-48e7-8721-7ff1dca3c7bc', 'offset': 3323405464, 'domain': 'zh.wikipedia.org', 'uri': 'https://zh.wikipedia.org/wiki/%E9%9B%B2%E6%9E%97%E7%B8%A3%E7%A7%81%E7%AB%8B%E6%B7%B5%E6%98%8E%E5%9C%8B%E6%B0%91%E4%B8%AD%E5%AD%B8'}, 'log_type': 'abusefilter', 'wiki': 'zhwiki', 'title': '雲林縣私立淵明國民中學', 'comment': '', 'server_script_path': '/w'}
-
-"""
-
-"""
 {'log_type': 'delete', 'log_action': 'delete', 'log_action_comment': 'deleted &quot;[[舞法天少女朵法拉第七季]]&quot;：[[WP:CSD#G3|G3]]: 纯粹[[WP:VAN|破坏]]，包括但不限于明显的[[WP:HOAX|恶作剧]]、错误信息、[[WP:PA|人身攻击]]等', 'user': 'Shizhao', 'id': 138940549, 'server_script_path': '/w', 'meta': {'domain': 'zh.wikipedia.org', 'partition': 0, 'stream': 'mediawiki.recentchange', 'topic': 'eqiad.mediawiki.recentchange', 'uri': 'https://zh.wikipedia.org/wiki/%E8%88%9E%E6%B3%95%E5%A4%A9%E5%B0%91%E5%A5%B3%E6%9C%B5%E6%B3%95%E6%8B%89%E7%AC%AC%E4%B8%83%E5%AD%A3', 'dt': '2021-09-26T09:08:57Z', 'id': '11f114d4-69ed-451b-a67a-972db14cd7d8', 'request_id': '26d4b058-ebab-41bf-ae48-a5f3c8ed1f61', 'offset': 3323431467}, 'parsedcomment': '<a href="/wiki/Wikipedia:CSD#G3" class="mw-redirect" title="Wikipedia:CSD">G3</a>: 纯粹<a href="/wiki/Wikipedia:VAN" class="mw-redirect" title="Wikipedia:VAN">破坏</a>，包括但不限于明显的<a href="/wiki/Wikipedia:HOAX" class="mw-redirect" title="Wikipedia:HOAX">恶作剧</a>、错误信息、<a href="/wiki/Wikipedia:PA" class="mw-redirect" title="Wikipedia:PA">人身攻击</a>等', 'title': '舞法天少女朵法拉第七季', 'comment': '[[WP:CSD#G3|G3]]: 纯粹[[WP:VAN|破坏]]，包括但不限于明显的[[WP:HOAX|恶作剧]]、错误信息、[[WP:PA|人身攻击]]等', 'bot': False, 'wiki': 'zhwiki', 'type': 'log', 'namespace': 0, 'timestamp': 1632647337, 'log_params': [], '$schema': '/mediawiki/recentchange/1.0.0', 'server_name': 'zh.wikipedia.org', 'server_url': 'https://zh.wikipedia.org', 'log_id': 10844911}
 
 """
 
 """
 {'type': 'log', 'comment': '机器人: 被永久封禁的用户页', 'id': 138996373, 'server_script_path': '/w', 'wiki': 'zhwiki', 'user': 'Jimmy-abot', 'namespace': 2, 'bot': True, 'parsedcomment': '机器人: 被永久封禁的用户页', 'log_params': {'details': [{'type': 'create', 'expiry': 'infinity', 'level': 'sysop'}], 'cascade': False, 'description': '\u200e[create=sysop] (无限期)'}, 'server_url': 'https://zh.wikipedia.org', 'log_id': 10848695, 'title': 'User:S002282000', '$schema': '/mediawiki/recentchange/1.0.0', 'timestamp': 1632808452, 'server_name': 'zh.wikipedia.org', 'log_action_comment': '保护 User:S002282000 \u200e[create=sysop] (无限期)：机器人: 被永久封禁的用户页', 'meta': {'offset': 3328394438, 'uri': 'https://zh.wikipedia.org/wiki/User:S002282000', 'domain': 'zh.wikipedia.org', 'topic': 'eqiad.mediawiki.recentchange', 'dt': '2021-09-28T05:54:12Z', 'stream': 'mediawiki.recentchange', 'request_id': '292317ad-ca22-4dcd-9e2c-17db5da3da0d', 'id': '07c10791-e6c8-466b-ad8e-37416c534dfa', 'partition': 0}, 'log_action': 'protect', 'log_type': 'protect'}
+"""
+"""
+{'log_id': 10940315, 'parsedcomment': '罕用異體字', '$schema': '/mediawiki/recentchange/1.0.0', 'bot': False, 'id': 139708248, 'log_action': 'move', 'timestamp': 1634616731, 'log_params': {'noredir': '1', 'target': '張為儀'}, 'comment': '罕用異體字', 'type': 'log', 'wiki': 'zhwiki', 'server_url': 'https://zh.wikipedia.org', 'server_name': 'zh.wikipedia.org', 'meta': {'stream': 'mediawiki.recentchange', 'domain': 'zh.wikipedia.org', 'offset': 3374470599, 'id': 'db7893cc-6019-44c1-9027-70a68fe9f71d', 'request_id': 'c336421e-e48b-4911-a023-f7370c8f315d', 'dt': '2021-10-19T04:12:11Z', 'topic': 'eqiad.mediawiki.recentchange', 'partition': 0, 'uri': 'https://zh.wikipedia.org/wiki/%E5%BC%B5%E7%88%B2%E5%84%80'}, 'log_type': 'move', 'log_action_comment': 'moved [[張爲儀]] to [[張為儀]]：罕用異體字', 'title': '張爲儀', 'user': '無聊龍', 'server_script_path': '/w', 'namespace': 0}
 """
