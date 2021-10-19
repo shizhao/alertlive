@@ -8,6 +8,8 @@ transwikicat = ['Category:移动到维基学院候选','Category:移动到维基
 copyviocat = 'Category:怀疑侵犯版权页面'
 rewritecpcat = 'Category:重写侵权页面的草稿条目'
 drvcat = 'Category:存废复核候选'
+nozhcat = 'Category:需要翻译的文章'
+nozh2cat = 'Category:需要翻译已超过两周的文章'
 
 dykccat = 'Category:新條目推薦候選'
 dykcat = 'Category:推薦的新條目'

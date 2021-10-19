@@ -372,6 +372,26 @@ while True:
                       change['comment'])
             # TODO：{{hang on|理由}}，现缺少专门分类
 
+        # ================NOZH=======================
+        if change['title'] == alert_config.nozhcat:
+            add_matchObj = re.match(
+                alert_config.changecat['add'], change['comment'])
+            if add_matchObj:
+                wikitextformat = '* {date}：[[:{title}]]需要翻译'
+                summary = '翻译：+[[' + add_matchObj.group(1) + ']]'
+                process_catdata(site, categorize(add_matchObj, change), 'CSD',
+                                wikitextformat, summary)
+
+        # ================NOZH > 2 week=======================
+        if change['title'] == alert_config.nozh2cat:
+            add_matchObj = re.match(
+                alert_config.changecat['add'], change['comment'])
+            if add_matchObj:
+                wikitextformat = '* {date}：[[:{title}]]超过两周没有翻译'
+                summary = '翻译：[[' + add_matchObj.group(1) + ']]'
+                process_catdata(site, categorize(add_matchObj, change), 'CSD',
+                                wikitextformat, summary)                           
+
         # ================FCSD文件速删(与CSD合并)=======================
         elif change['title'] in alert_config.filecsd_cats:
             add_matchObj = re.match(
