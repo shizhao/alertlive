@@ -400,13 +400,13 @@ while True:
                 alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 summary = '文件速删：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{type}">速删</abbr>'
+                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="<nowiki>{type}</nowiki>">速删</abbr>'
                 process_catdata(site, categorize(add_matchObj, change), 'CSD',
                                 wikitextformat, summary, subtype=change['title'].split(':', 1)[1])
             # 移除分类
             elif remove_matchObj:
                 summary = '文件速删：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]提交<abbr title="{type}">速删</abbr>后被{{{{User|{user}|small=1}}}}保留'
+                wikitextformat = '* {date}：[[:{title}]]提交<abbr title="<nowiki>{type}</nowiki>">速删</abbr>后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site, categorize(remove_matchObj, change), 'CSD',
                                 wikitextformat, summary, subtype=change['title'].split(':', 1)[1])
             else:
@@ -434,10 +434,10 @@ while True:
                                 vfddate = p.split('=', 1)[1]
                 if vfddate:
                     talkat = '➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|讨论存档]]' % (vfddate, add_matchObj.group(1))
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">存废讨论</abbr> ➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|参与讨论]]' % (vfddate, add_matchObj.group(1))
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="<nowiki>{reason}</nowiki>">存废讨论</abbr> ➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|参与讨论]]' % (vfddate, add_matchObj.group(1))
                 else:
                     talkat = ''
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">存废讨论</abbr>'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="<nowiki>{reason}</nowiki>">存废讨论</abbr>'
                 process_catdata(site, categorize(add_matchObj, change,talkat=talkat),
                                 'VFD', wikitextformat, summary, vfdtemplate)
             # 移除分类
@@ -483,11 +483,11 @@ while True:
                 if ifddate:
                     talkat = '➡️ [[Wikipedia:檔案存廢討論/記錄/%s#%s|讨论存档]]' % (
                         ifddate, add_matchObj.group(1))
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">文件删除讨论</abbr> ➡️ [[Wikipedia:檔案存廢討論/記錄/%s#%s|参与讨论]]' % (
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="<nowiki>{reason}</nowiki>">文件删除讨论</abbr> ➡️ [[Wikipedia:檔案存廢討論/記錄/%s#%s|参与讨论]]' % (
                         ifddate, add_matchObj.group(1))
                 else:
                     talkat = ''
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">文件删除讨论</abbr>'
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="<nowiki>{reason}</nowiki>">文件删除讨论</abbr>'
                 process_catdata(site, categorize(add_matchObj, change, talkat=talkat),
                                 'VFD', wikitextformat, summary, ['Template:Ifd'])
             # 移除分类
@@ -841,7 +841,7 @@ while True:
             # 移除分类
             elif remove_matchObj:
                 summary = '拆分：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已经由{{{{User|{user}|small=1}}}}完成拆分'
+                wikitextformat = '* {date}：[[:{title}]]已经由{{{{User|{user}|small=1}}}}解决了拆分问题'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'SPLIT', wikitextformat, summary)
             else:
@@ -1054,7 +1054,7 @@ while True:
                     for dict in v:
                         if dict['title'] == change['title']:
                             summary = '-[[' + change['title'] + ']]已删除'
-                            wikitextformat = '* {{{{color|grey|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
+                            wikitextformat = '* {{{{color|grey|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
                             stream_data = logdata(change)
                             if 'talkat' in dict:
                                 stream_data['talkat'] = dict['talkat']
@@ -1081,13 +1081,13 @@ while True:
             if change['log_action'] == 'protect':
                 # TODO:编辑请求
                 summary = '保护：+[[' + change['title'] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
+                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                 process_catdata(site, logdata(change), 'PP',
                                 wikitextformat, summary, subtype='protect')
             # 解除保护
             elif change['log_action'] == 'unprotect':
                 summary = '解除保护：-[[' + change['title'] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">解除保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
+                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">解除保护</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                 process_catdata(site, logdata(change), 'PP',
                                 wikitextformat, summary, subtype='unprotect')
         # ================移动=======================
@@ -1107,7 +1107,7 @@ while True:
                         for dict in v:
                             if dict['title'] == change['title']:
                                 summary = '移动：-[[' + change['title'] + ']]'
-                                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="{reason}">移动到</abbr>[[:{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
+                                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">移动到</abbr>[[:{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                                 stream_data = logdata(change)
                                 stream_data['wikitext'] = wikitextformat.format(
                                     **stream_data)
