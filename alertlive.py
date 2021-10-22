@@ -1,6 +1,3 @@
-"""
-TODO： 运行状态监控
-"""
 from pywikibot.comms.eventstreams import EventStreams
 import pywikibot
 import re
@@ -174,12 +171,13 @@ def post2wiki(alert_page, workflows, cache, summary):
         wikitext = wikipage.text
         try:
             text_head = re.search(r'(?P<head><noinclude>.*?\{\{ArticleAlertbot\|.*?\}\}.*?</noinclude>)',
-                                 wikitext, re.S).group('head') + text_head
+                                  wikitext, re.S).group('head') + text_head
         except AttributeError as e:
             print(e)
             print('text_head格式不对')
         try:
-            text_foot += re.search(r'(?P<foot><noinclude>\{\{ArticleAlertbot\/foot\}\}.*?</noinclude>)',wikitext,re.S).group('foot')
+            text_foot += re.search(
+                r'(?P<foot><noinclude>\{\{ArticleAlertbot\/foot\}\}.*?</noinclude>)', wikitext, re.S).group('foot')
         except AttributeError as e:
             print(e)
             print('text_foot格式不对或不存在')
@@ -237,7 +235,8 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                             if 'talkat' in cache_type[i]:
                                 stream_data['talkat'] = cache_type[i]['talkat']
                                 if stream_data['talkat']:
-                                    stream_data['wikitext'] = wikitextformat.format(**stream_data)
+                                    stream_data['wikitext'] = wikitextformat.format(
+                                        **stream_data)
                             cache_type[i] = stream_data
                         else:
                             n += 1
@@ -256,6 +255,7 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                 post2wiki(alert_page, workflows, cache, summary)
 
 # 对分类改变的处理，弃用
+
 
 def changecat(site, change, alert_type, subtype=None):
     add_matchObj = re.match(alert_config.changecat['add'], change['comment'])
@@ -391,7 +391,7 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]超过两周没有翻译'
                 summary = '翻译：[[' + add_matchObj.group(1) + ']]'
                 process_catdata(site, categorize(add_matchObj, change), 'CSD',
-                                wikitextformat, summary)                           
+                                wikitextformat, summary)
 
         # ================FCSD文件速删(与CSD合并)=======================
         elif change['title'] in alert_config.filecsd_cats:
@@ -434,12 +434,14 @@ while True:
                             if p.split('=', 1)[0].lower() == 'date':
                                 vfddate = p.split('=', 1)[1]
                 if vfddate:
-                    talkat = '➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|讨论存档]]' % (vfddate, add_matchObj.group(1))
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="<nowiki>{reason}</nowiki>">存废讨论</abbr> ➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|参与讨论]]' % (vfddate, add_matchObj.group(1))
+                    talkat = '➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|讨论存档]]' % (
+                        vfddate, add_matchObj.group(1))
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="<nowiki>{reason}</nowiki>">存废讨论</abbr> ➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|参与讨论]]' % (
+                        vfddate, add_matchObj.group(1))
                 else:
                     talkat = ''
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="<nowiki>{reason}</nowiki>">存废讨论</abbr>'
-                process_catdata(site, categorize(add_matchObj, change,talkat=talkat),
+                process_catdata(site, categorize(add_matchObj, change, talkat=talkat),
                                 'VFD', wikitextformat, summary, vfdtemplate)
             # 移除分类
             elif remove_matchObj:
@@ -563,13 +565,17 @@ while True:
                             i = 0
                             for dict in v:
                                 try:
-                                    rwtitle = add_matchObj.group(1).split(':', 1)[1]
+                                    rwtitle = add_matchObj.group(
+                                        1).split(':', 1)[1]
                                 except IndexError:
                                     rwtitle = add_matchObj.group(1)
                                 if dict['title'] == rwtitle:
-                                    summary = '侵权重写：[[' + add_matchObj.group(1) + ']]'
-                                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}）重写于[[%s]]' % add_matchObj.group(1)
-                                    stream_data = categorize(add_matchObj, change)
+                                    summary = '侵权重写：[[' + \
+                                        add_matchObj.group(1) + ']]'
+                                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}）重写于[[%s]]' % add_matchObj.group(
+                                        1)
+                                    stream_data = categorize(
+                                        add_matchObj, change)
                                     stream_data['wikitext'] = wikitextformat.format(
                                         **stream_data)
                                     v[i] = stream_data
@@ -920,40 +926,53 @@ while True:
                                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}请求移动到[[%s]]' % t
                         else:
                             moveto = ''
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}请求移动到新名称'                           
-                        process_catdata(site,  categorize(add_matchObj, change,moveto=moveto), 'MV', wikitextformat, summary)
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}请求移动到新名称'
+                        process_catdata(site,  categorize(
+                            add_matchObj, change, moveto=moveto), 'MV', wikitextformat, summary)
 
         elif change['title'] == alert_config.rmcdonecat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
-                summary = '移动请求：-[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已完成了移动请求 ➡️ [[%s|讨论存档]]' % add_matchObj.group(1)                       
-                process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+                summary = '移动请求：-[[' + \
+                    add_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]已完成了移动请求 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
+                    1)
+                process_catdata(site,  categorize(
+                    add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
 
         elif change['title'] == alert_config.rmcndcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
-                summary = '移动请求：-[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]的移动请求已被拒绝 ➡️ [[%s|讨论存档]]' % add_matchObj.group(1)                       
-                process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+                summary = '移动请求：-[[' + \
+                    add_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]的移动请求已被拒绝 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
+                    1)
+                process_catdata(site,  categorize(
+                    add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
 
         elif change['title'] == alert_config.rmcnmcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
-                summary = '移动请求：[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]的移动请求已讨论通过，等待处理 ➡️ [[%s|讨论存档]]' % add_matchObj.group(1)                       
-                process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+                summary = '移动请求：[[' + \
+                    add_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]的移动请求已讨论通过，等待处理 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
+                    1)
+                process_catdata(site,  categorize(
+                    add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
 
         elif change['title'] == alert_config.rmccat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
-                summary = '移动请求：[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]的移动请求[[%s|正在讨论]]' % add_matchObj.group(1)                       
-                process_catdata(site,  categorize(add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+                summary = '移动请求：[[' + \
+                    add_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]的移动请求[[%s|正在讨论]]' % add_matchObj.group(
+                    1)
+                process_catdata(site,  categorize(
+                    add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
 
         # ================MM合并=======================
         # TODO: [[Template:Merge approved]]的处理？
@@ -1055,7 +1074,7 @@ while True:
                     for dict in v:
                         if dict['title'] == change['title']:
                             summary = '-[[' + change['title'] + ']]已删除'
-                            wikitextformat = '* {{{{color|grey|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
+                            wikitextformat = '* {{{{color|#72777d|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
                             stream_data = logdata(change)
                             if 'talkat' in dict:
                                 stream_data['talkat'] = dict['talkat']
@@ -1103,7 +1122,7 @@ while True:
                 cachestr = json.dumps(cache)
 
                 for k, v in cache.items():
-                    if k =='MV':
+                    if k == 'MV':
                         i = 0
                         for dict in v:
                             if dict['title'] == change['title']:
