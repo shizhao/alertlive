@@ -671,7 +671,7 @@ while True:
                 summary = 'FL：+[[' + add_matchObj.group(1) + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
-                    add_matchObj, change), 'FC', wikitextformat, summary)
+                    add_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
 
         # ================FLFailed落选=======================
         elif change['title'] == alert_config.flfcat:
@@ -729,7 +729,7 @@ while True:
                 summary = 'FA：+[[' + add_matchObj.group(1) + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
-                    add_matchObj, change), 'FC', wikitextformat, summary)
+                    add_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
 
         # ================FAF落选=======================
         elif change['title'] == alert_config.fafcat:
@@ -787,7 +787,7 @@ while True:
                 summary = 'GA：+[[' + add_matchObj.group(1) + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
-                    add_matchObj, change), 'GA', wikitextformat, summary)
+                    add_matchObj, change), 'GA', wikitextformat, summary, with_talk=True)
 
         # ================GAF落选=======================
         elif change['title'] == alert_config.gafcat:

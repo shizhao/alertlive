@@ -15,17 +15,17 @@ dykccat = 'Category:新條目推薦候選'
 dykcat = 'Category:推薦的新條目'
 
 flccat = 'Category:特色列表候選'
-flcat = 'Category:特色列表'
+flcat = 'Category:特色列表讨论'
 flfcat = 'Category:特色列表落選'
 fflcat = 'Category:已撤销的特色列表'
 
 faccat = 'Category:典範條目候選'
-facat = 'Category:典范条目'
+facat = 'Category:典范条目讨论'
 fafcat = 'Category:典範條目落選'
 falcat = 'Category:已撤銷的典範條目'
 
 gancat= 'Category:優良條目評選'
-gacat = 'Category:優良條目'
+gacat = 'Category:优良条目讨论'
 gafcat = 'Category:優良條目落選'
 galcat = 'Category:已撤銷的優良條目'
 
