@@ -189,10 +189,9 @@ def post2wiki(alert_page, workflows, cache, summary):
         text = '目前没有新的条目状态通告。'
     text = text_head + text + text_foot
     print(text)
-    # TEST: userpage
-    if wikipage.namespace() == 'User:':
-        wikipage.text = text
-        wikipage.save(summary)
+    # TEST: 正式测试运行
+    wikipage.text = text
+    wikipage.save(summary)
 
 
 # 对分类改变的数据进行处理
