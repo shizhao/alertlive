@@ -772,7 +772,7 @@ while True:
                 if pywikibot.Page(site, remove_matchObj.group(1)).isTalkPage() and pywikibot.Page(site, 'Template:Good article') in pywikibot.Page(site, remove_matchObj.group(1)).toggleTalkPage().templates():
                     summary = 'GA：+[[' + \
                         remove_matchObj.group(1).split(':', 1)[1] + ']]'
-                    wikitextformat = '* {date}：[[:{title}]]重选后维持了優良条目状态 -> [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {date}：[[:{title}]]重选后维持了優良条目状态 ➡️ [[Talk:{title}|讨论存档]]'
                     process_catdata(site, categorize(
                         remove_matchObj, change), 'GA', wikitextformat, summary, with_talk=True)
             else:
