@@ -12,23 +12,27 @@ site = pywikibot.Site()
 
 
 def categorize(matchObj, change, **kwargs):
-    dict = {'title': matchObj.group(1),
-            'user': change['user'],
-            'date': time.strftime(
+    dict = {
+        'title': matchObj.group(1),
+        'user': change['user'],
+        'date': time.strftime(
             "%Y-%m-%d", time.localtime(change['timestamp'])),
-            'action': matchObj.group(2),
-            'category': change['title'],
-            'reason': '',
-            'talkat': ''
-            }
+        'action': matchObj.group(2),
+        'category': change['title'],
+        'reason': '',
+        'talkat': '',
+        'flag': ''
+        }
     if 'talkat' in kwargs:
         dict['talkat'] = kwargs['talkat']
     if 'moveto' in kwargs:
         dict['moveto'] = kwargs['moveto']
+    if 'flag' in kwargs:
+        dict['flag'] = kwargs['flag']
     return dict
 
 
-def logdata(change):
+def logdata(change, **kwargs):
     dict = {
         'title': change['title'],
         'user': change['user'],
@@ -37,10 +41,13 @@ def logdata(change):
         'action': change['log_action'],
         'reason': change['log_action_comment'],
         'id': change['log_id'],
+        'flag': ''
     }
     if 'log_params' in change:
         if 'target' in change['log_params']:
             dict['moveto'] = change['log_params']['target']
+    if 'flag' in kwargs:
+        dict['flag'] = kwargs['flag']
     return dict
 
 # 得到某个页面的对话页
@@ -253,6 +260,46 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                 dump_cache('./alert_data/'+jsonfile, cache)
                 alertcheck(alert_page)  # 每次更新时检查alert模板的参数有无变化
                 post2wiki(alert_page, workflows, cache, summary)
+
+# 已有项目的数据处理
+
+
+def onlyprocess_existingitem(site, stream_data, alert_type, wikitextformat, summary='', with_talk=False):
+    alert_data = load_cache('./alert_data/alert_data.json')
+    if pywikibot.Page(site, stream_data['title']).isTalkPage() and with_talk:
+        stream_data['title'] = pywikibot.Page(site, stream_data['title']).toggleTalkPage().title()
+    for data in alert_data:
+        file = data[1]['jsonfile']
+        alert_page = data[1]['alert_page']
+        workflows = data[1]['workflows']
+        archivetime = data[1]['archivetime']
+        cache = load_cache('./alert_data/'+file)
+        cachestr = json.dumps(cache)
+
+        for k, v in cache.items():
+            if k == alert_type:
+                i = 0
+                for dict in v:
+                    if dict['title'] == stream_data['title'] and dict['flag'] == stream_data['flag']:
+                        if 'talkat' in dict:
+                            stream_data['talkat'] = dict['talkat']
+                        else:
+                            stream_data['talkat'] = ''
+                        stream_data['wikitext'] = wikitextformat.format(
+                            **stream_data)
+                        v[i] = stream_data
+                    i += 1
+        if cachestr != json.dumps(cache):
+            cache = dateclean(cache, archivetime)[0]
+            archive_summary = dateclean(cache, archivetime)[1]
+            if archive_summary:
+                summary += archive_summary
+            print(stream_data)
+            print(file, cache)
+            dump_cache('./alert_data/'+file, cache)
+            alertcheck(alert_page)
+            post2wiki(alert_page, workflows, cache, summary)
+
 
 # 对分类改变的处理，弃用
 
@@ -647,18 +694,18 @@ while True:
                 summary = 'FL：[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
                 if pywikibot.Page(site, add_matchObj.group(1)).isTalkPage() and pywikibot.Page(site, 'Template:Featured list removal candidates') in pywikibot.Page(site, add_matchObj.group(1)).templates():
+                    flag = 'FL'
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:特色列表评选#{title}|重选特色列表]]'
                 else:
+                    flag = ''
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:特色列表评选#{title}|评选特色列表]]'
-                process_catdata(site, categorize(add_matchObj, change),
+                process_catdata(site, categorize(add_matchObj, change, flag=flag),
                                 'FC', wikitextformat, summary, with_talk=True)
             elif remove_matchObj:
-                if pywikibot.Page(site, remove_matchObj.group(1)).isTalkPage() and pywikibot.Page(site, 'Template:Featured list') in pywikibot.Page(site, remove_matchObj.group(1)).toggleTalkPage().templates():
-                    summary = 'FL：[[' + \
-                        remove_matchObj.group(1).split(':', 1)[1] + ']]'
-                    wikitextformat = '* {date}：[[:{title}]]重选后维持了特色列表状态 ➡️ [[Talk:{title}|讨论存档]]'
-                    process_catdata(site, categorize(
-                        remove_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
+                summary = 'FL：[[' + \
+                    remove_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]重选后维持了特色列表状态 ➡️ [[Talk:{title}|讨论存档]]'
+                onlyprocess_existingitem(site, categorize(remove_matchObj, change, flag='FL'), 'FC', wikitextformat, summary, with_talk=True)
             else:
                 print('Cannot match the comment text in categorize: %s' %
                       change['comment'])
@@ -668,10 +715,10 @@ while True:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
-                summary = 'FL：+[[' + add_matchObj.group(1) + ']]'
+                summary = 'FL：+[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
-                    add_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
+                    add_matchObj, change, flag='FL'), 'FC', wikitextformat, summary, with_talk=True)
 
         # ================FLFailed落选=======================
         elif change['title'] == alert_config.flfcat:
@@ -692,7 +739,7 @@ while True:
                 summary = 'FL：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}|讨论存档]]'
-                process_catdata(site, categorize(add_matchObj, change),
+                process_catdata(site, categorize(add_matchObj, change, flag=''),
                                 'FC', wikitextformat, summary, with_talk=True)
 
         # ================FAC，FAR，FAK=======================
@@ -705,18 +752,18 @@ while True:
                 summary = 'FA：[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
                 if pywikibot.Page(site, add_matchObj.group(1)).isTalkPage() and pywikibot.Page(site, 'Template:Featured article review') in pywikibot.Page(site, add_matchObj.group(1)).templates():
+                    flag = 'FA'
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:典范条目评选#{title}|重选典范条目]]'
                 else:
+                    flag = ''
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:典范条目评选#{title}|评选典范条目]]'
-                process_catdata(site, categorize(add_matchObj, change),
+                process_catdata(site, categorize(add_matchObj, change, flag=flag),
                                 'FC', wikitextformat, summary, with_talk=True)
             elif remove_matchObj:
-                if pywikibot.Page(site, remove_matchObj.group(1)).isTalkPage() and pywikibot.Page(site, 'Template:Featured article') in pywikibot.Page(site, remove_matchObj.group(1)).toggleTalkPage().templates():
-                    summary = 'FA：+[[' + \
-                        remove_matchObj.group(1).split(':', 1)[1] + ']]'
-                    wikitextformat = '* {date}：[[:{title}]]重选后维持了典范条目状态 ➡️ [[Talk:{title}|讨论存档]]'
-                    process_catdata(site, categorize(
-                        remove_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
+                summary = 'FA：+[[' + \
+                    remove_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]重选后维持了典范条目状态 ➡️ [[Talk:{title}|讨论存档]]'
+                onlyprocess_existingitem(site, categorize(remove_matchObj, change, flag='FA'), 'FC', wikitextformat, summary, with_talk=True)
             else:
                 print('Cannot match the comment text in categorize: %s' %
                       change['comment'])
@@ -726,10 +773,10 @@ while True:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
-                summary = 'FA：+[[' + add_matchObj.group(1) + ']]'
+                summary = 'FA：+[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
-                    add_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
+                    add_matchObj, change, flag='FA'), 'FC', wikitextformat, summary, with_talk=True)
 
         # ================FAF落选=======================
         elif change['title'] == alert_config.fafcat:
@@ -750,7 +797,7 @@ while True:
                 summary = 'FA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}|讨论存档]]'
-                process_catdata(site, categorize(add_matchObj, change),
+                process_catdata(site, categorize(add_matchObj, change, flag=''),
                                 'FC', wikitextformat, summary, with_talk=True)
 
         # ================GAN,GAR,GAK=======================
@@ -763,18 +810,18 @@ while True:
                 summary = 'GA：[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
                 if pywikibot.Page(site, add_matchObj.group(1)).isTalkPage() and pywikibot.Page(site, 'Template:GA reassessment') in pywikibot.Page(site, add_matchObj.group(1)).templates():
+                    flag = 'GA'
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:優良條目評選#{title}|重选优良条目]]'
                 else:
+                    flag = ''
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提名[[Wikipedia:優良條目評選#{title}|评选优良条目]]'
-                process_catdata(site, categorize(add_matchObj, change),
+                process_catdata(site, categorize(add_matchObj, change, flag=flag),
                                 'GA', wikitextformat, summary, with_talk=True)
             elif remove_matchObj:
-                if pywikibot.Page(site, remove_matchObj.group(1)).isTalkPage() and pywikibot.Page(site, 'Template:Good article') in pywikibot.Page(site, remove_matchObj.group(1)).toggleTalkPage().templates():
-                    summary = 'GA：+[[' + \
-                        remove_matchObj.group(1).split(':', 1)[1] + ']]'
-                    wikitextformat = '* {date}：[[:{title}]]重选后维持了優良条目状态 ➡️ [[Talk:{title}|讨论存档]]'
-                    process_catdata(site, categorize(
-                        remove_matchObj, change), 'GA', wikitextformat, summary, with_talk=True)
+                summary = 'GA：+[[' + \
+                    remove_matchObj.group(1).split(':', 1)[1] + ']]'
+                wikitextformat = '* {date}：[[:{title}]]重选后维持了優良条目状态 ➡️ [[Talk:{title}|讨论存档]]'
+                onlyprocess_existingitem(site, categorize(remove_matchObj, change, flag='GA'), 'GA', wikitextformat, summary, with_talk=True)
             else:
                 print('Cannot match the comment text in categorize: %s' %
                       change['comment'])
@@ -784,10 +831,10 @@ while True:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
-                summary = 'GA：+[[' + add_matchObj.group(1) + ']]'
+                summary = 'GA：+[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
-                    add_matchObj, change), 'GA', wikitextformat, summary, with_talk=True)
+                    add_matchObj, change, flag='GA'), 'GA', wikitextformat, summary, with_talk=True)
 
         # ================GAF落选=======================
         elif change['title'] == alert_config.gafcat:
@@ -808,7 +855,7 @@ while True:
                 summary = 'GA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
                 wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}|讨论存档]]'
-                process_catdata(site, categorize(add_matchObj, change),
+                process_catdata(site, categorize(add_matchObj, change, flag=''),
                                 'GA', wikitextformat, summary, with_talk=True)
 
         # ================PR=======================
@@ -928,7 +975,7 @@ while True:
                             moveto = ''
                             wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}请求移动到新名称'
                         process_catdata(site,  categorize(
-                            add_matchObj, change, moveto=moveto), 'MV', wikitextformat, summary)
+                            add_matchObj, change, moveto=moveto,flag='MV'), 'MV', wikitextformat, summary)
 
         elif change['title'] == alert_config.rmcdonecat:
             add_matchObj = re.match(
@@ -939,7 +986,7 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]已完成了移动请求 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
                     1)
                 process_catdata(site,  categorize(
-                    add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+                    add_matchObj, change,flag='MV'), 'MV', wikitextformat, summary, with_talk=True)
 
         elif change['title'] == alert_config.rmcndcat:
             add_matchObj = re.match(
@@ -950,7 +997,7 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]的移动请求已被拒绝 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
                     1)
                 process_catdata(site,  categorize(
-                    add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+                    add_matchObj, change,flag='MV'), 'MV', wikitextformat, summary, with_talk=True)
 
         elif change['title'] == alert_config.rmcnmcat:
             add_matchObj = re.match(
@@ -961,7 +1008,7 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]的移动请求已讨论通过，等待处理 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
                     1)
                 process_catdata(site,  categorize(
-                    add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+                    add_matchObj, change,flag='MV'), 'MV', wikitextformat, summary, with_talk=True)
 
         elif change['title'] == alert_config.rmccat:
             add_matchObj = re.match(
@@ -972,7 +1019,7 @@ while True:
                 wikitextformat = '* {date}：[[:{title}]]的移动请求[[%s|正在讨论]]' % add_matchObj.group(
                     1)
                 process_catdata(site,  categorize(
-                    add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
+                    add_matchObj, change,flag='MV'), 'MV', wikitextformat, summary, with_talk=True)
 
         # ================MM合并=======================
         # TODO: [[Template:Merge approved]]的处理？
@@ -1112,38 +1159,9 @@ while True:
                                 wikitextformat, summary, subtype='unprotect')
         # ================移动=======================
         elif change['log_type'] == 'move':
-            alert_data = load_cache('./alert_data/alert_data.json')
-            for data in alert_data:
-                file = data[1]['jsonfile']
-                alert_page = data[1]['alert_page']
-                workflows = data[1]['workflows']
-                archivetime = data[1]['archivetime']
-                cache = load_cache('./alert_data/'+file)
-                cachestr = json.dumps(cache)
-
-                for k, v in cache.items():
-                    if k == 'MV':
-                        i = 0
-                        for dict in v:
-                            if dict['title'] == change['title']:
-                                summary = '移动：-[[' + change['title'] + ']]'
-                                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">移动到</abbr>[[:{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
-                                stream_data = logdata(change)
-                                stream_data['wikitext'] = wikitextformat.format(
-                                    **stream_data)
-                                v[i] = stream_data
-                            i += 1
-                if cachestr != json.dumps(cache):
-                    cache = dateclean(cache, archivetime)[0]
-                    archive_summary = dateclean(cache, archivetime)[1]
-                    if archive_summary:
-                        summary += archive_summary
-                    print(stream_data)
-                    print(change)
-                    print(file, cache)
-                    dump_cache('./alert_data/'+file, cache)
-                    alertcheck(alert_page)
-                    post2wiki(alert_page, workflows, cache, summary)
+            summary = '移动：-[[' + change['title'] + ']]'
+            wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">移动到</abbr>[[:{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
+            onlyprocess_existingitem(site, logdata(change,flag='MV'), 'MV',wikitextformat, summary)
 
 
 """TODO: 
