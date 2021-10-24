@@ -110,6 +110,7 @@ def dateclean(cache, archivetime):
         summary = None
     else:
         summary = '，' + str(n) + '项已存档'
+    print('dateclean: ', summary)
     return (cache, summary)
 
 
@@ -244,10 +245,11 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                         cache_type.insert(0, stream_data)
                 else:
                     cache_type.insert(0, stream_data)
-                cache = dateclean(cache, archivetime)[0]
-                archive_summary = dateclean(cache, archivetime)[1]
+                dateclean_cache = dateclean(cache, archivetime)
+                cache = dateclean_cache[0]
+                archive_summary = dateclean_cache[1]
                 if archive_summary:
-                    summary += dateclean(cache, archivetime)[1]
+                    summary += archive_summary
                 print(stream_data)
                 print(jsonfile, cache)
                 dump_cache('./alert_data/'+jsonfile, cache)
@@ -581,8 +583,9 @@ while True:
                                     v[i] = stream_data
                                 i += 1
                     if cachestr != json.dumps(cache):
-                        cache = dateclean(cache, archivetime)[0]
-                        archive_summary = dateclean(cache, archivetime)[1]
+                        dateclean_cache = dateclean(cache, archivetime)
+                        cache = dateclean_cache[0]
+                        archive_summary = dateclean_cache[1]
                         if archive_summary:
                             summary += archive_summary
                         print(stream_data)
@@ -1085,8 +1088,9 @@ while True:
                             v[i] = stream_data
                         i += 1
                 if cachestr != json.dumps(cache):
-                    cache = dateclean(cache, archivetime)[0]
-                    archive_summary = dateclean(cache, archivetime)[1]
+                    dateclean_cache = dateclean(cache, archivetime)
+                    cache = dateclean_cache[0]
+                    archive_summary = dateclean_cache[1]
                     if archive_summary:
                         summary += archive_summary
                     print(stream_data)
@@ -1134,8 +1138,9 @@ while True:
                                 v[i] = stream_data
                             i += 1
                 if cachestr != json.dumps(cache):
-                    cache = dateclean(cache, archivetime)[0]
-                    archive_summary = dateclean(cache, archivetime)[1]
+                    dateclean_cache = dateclean(cache, archivetime)
+                    cache = dateclean_cache[0]
+                    archive_summary = dateclean_cache[1]
                     if archive_summary:
                         summary += archive_summary
                     print(stream_data)
