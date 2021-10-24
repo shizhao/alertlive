@@ -82,4 +82,4 @@ for alert_page in alert_pages:
 if local_str != json.dumps(alert_data):              
     print('UPDATE: ',alert_data)
     with open('./alert_data/alert_data.json', 'w') as f:
-        json.dump(alert_data, f)     
+        json.dump(alert_data, f)
