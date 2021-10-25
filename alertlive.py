@@ -187,7 +187,7 @@ def post2wiki(alert_page, workflows, cache, summary):
         print('text没有数据')
         text = '目前没有新的条目状态通告。'
     text = text_head + text + text_foot
-    print(text)
+    # print(text)
     # TEST: 正式测试运行
     wikipage.text = text
     wikipage.save(summary)
@@ -589,7 +589,7 @@ while True:
                         if archive_summary:
                             summary += archive_summary
                         print(stream_data)
-                        print(change)
+                        # print(change)
                         print(file, cache)
                         dump_cache('./alert_data/'+file, cache)
                         alertcheck(alert_page)
@@ -1094,7 +1094,7 @@ while True:
                     if archive_summary:
                         summary += archive_summary
                     print(stream_data)
-                    print(change)
+                    # print(change)
                     print(file, cache)
                     dump_cache('./alert_data/'+file, cache)
                     alertcheck(alert_page)
@@ -1144,7 +1144,7 @@ while True:
                     if archive_summary:
                         summary += archive_summary
                     print(stream_data)
-                    print(change)
+                    # print(change)
                     print(file, cache)
                     dump_cache('./alert_data/'+file, cache)
                     alertcheck(alert_page)
