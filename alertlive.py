@@ -522,7 +522,7 @@ while True:
                 summary = '移动到其他计划：-[[' + remove_matchObj.group(1) + ']]'
                 wikitextformat = '* {date}：[[:{title}]]建议{type}后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site, categorize(
-                    remove_matchObj, change), 'TRANS', wikitextformat, summary)
+                    remove_matchObj, change), 'TRANS', wikitextformat, summary, subtype=change['title'].split(':', 1)[1]))
             else:
                 print('Cannot match the comment text in categorize: %s' %
                       change['comment'])
