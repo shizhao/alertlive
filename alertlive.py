@@ -8,7 +8,7 @@ import alert_config
 import pywikibot.textlib as textlib
 
 site = pywikibot.Site()
-
+site.login()
 # 解析streams中的分类数据（添加或移除），返回dict数据
 
 
@@ -209,6 +209,39 @@ def extract_sections(site, title, sections_pattern):
             section_title = ''
             section_content = ''
     return (section_title, section_content)
+
+
+# 删除投票讨论中的最后总结部分
+def remove_vote_result(section_content):
+    section_content_list = section_content.split('----')
+    if len(section_content_list) > 1:
+        section_content_list.pop()
+        vote_content = ''.join(section_content_list)
+    else:
+        vote_content = section_content
+    return vote_content
+
+
+# 对结果进行统计
+# vote_type is dict：{'支持':['{{全部小写的模板}}'], '反对':['{{全部小写的模板}}']}
+def vote_count(vote_content, vote_type):
+    vote_count = {}
+    # 初始化 vote_count = {'支持':0, '反对':0}
+    for k in vote_type:
+        vote_count[k] = 0
+    # 按行拆分
+    # TODO: 参与人数统计
+    for line in vote_content.lower().splitlines(True):
+        for k, v in vote_type.items():
+            for t in v:
+                if line.find(t) != -1:
+                    vote_count[k] += 1
+    stat_list = []
+    for k, v in vote_count.items():
+        stat_list.append('%s：%s' % (k, v))
+    stat_text = '，'.join(stat_list)
+    stat_text = '<small>（<abbr title="%s">结果统计</abbr>）</small>' % stat_text
+    return stat_text
 
 
 # 对分类改变的数据进行处理
@@ -688,10 +721,20 @@ while True:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
-                sections_pattern = re.compile(r'==+ *(.*?特色列表[評|评][選|选].*?) *==+')
-                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                sections_pattern = re.compile(
+                    r'==+ *(.*?特色列表[評|评][選|选].*?) *==+')
+                section = extract_sections(
+                    site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
-                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                    if section[1]:
+                        vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                        stat_text = vote_count(
+                            remove_vote_result(section[1]), vote_type)
+                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                            section[0], stat_text)
+                    else:
+                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
                     wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}|讨论存档]]'
                 summary = 'FL：+[[' + add_matchObj.group(1) + ']]'
@@ -705,10 +748,20 @@ while True:
             if add_matchObj:
                 summary = 'FL：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                sections_pattern = re.compile(r'==+ *(.*?特色列表[評|评][選|选].*?) *==+')
-                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                sections_pattern = re.compile(
+                    r'==+ *(.*?特色列表[評|评][選|选].*?) *==+')
+                section = extract_sections(
+                    site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
-                    wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                    if section[1]:
+                        vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                        stat_text = vote_count(
+                            remove_vote_result(section[1]), vote_type)
+                        wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                            section[0], stat_text)
+                    else:
+                        wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
                     wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
@@ -722,9 +775,18 @@ while True:
                 summary = 'FL：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
                 sections_pattern = re.compile(r'==+ *(.*?特色列表重[审|審].*?) *==+')
-                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                section = extract_sections(
+                    site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
-                    wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                    if section[1]:
+                        vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                        stat_text = vote_count(
+                            remove_vote_result(section[1]), vote_type)
+                        wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                            section[0], stat_text)
+                    else:
+                        wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
                     wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
@@ -762,10 +824,20 @@ while True:
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
                 summary = 'FA：+[[' + add_matchObj.group(1) + ']]'
-                sections_pattern = re.compile(r'==+ *(.*?典[范|範][條|条]目[評|评][選|选].*?) *==+')
-                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                sections_pattern = re.compile(
+                    r'==+ *(.*?典[范|範][條|条]目[評|评][選|选].*?) *==+')
+                section = extract_sections(
+                    site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
-                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                    if section[1]:
+                        vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                        stat_text = vote_count(
+                            remove_vote_result(section[1]), vote_type)
+                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                            section[0], stat_text)
+                    else:
+                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
                     wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
@@ -778,10 +850,20 @@ while True:
             if add_matchObj:
                 summary = 'FA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                sections_pattern = re.compile(r'==+ *(.*?典[范|範][條|条]目[評|评][選|选].*?) *==+')
-                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                sections_pattern = re.compile(
+                    r'==+ *(.*?典[范|範][條|条]目[評|评][選|选].*?) *==+')
+                section = extract_sections(
+                    site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
-                    wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                    if section[1]:
+                        vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                        stat_text = vote_count(
+                            remove_vote_result(section[1]), vote_type)
+                        wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                            section[0], stat_text)
+                    else:
+                        wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
                     wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
@@ -794,10 +876,20 @@ while True:
             if add_matchObj:
                 summary = 'FA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                sections_pattern = re.compile(r'==+ *(.*?典[范|範][條|条]目重[审|審].*?) *==+')
-                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                sections_pattern = re.compile(
+                    r'==+ *(.*?典[范|範][條|条]目重[审|審].*?) *==+')
+                section = extract_sections(
+                    site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
-                    wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                    if section[1]:
+                        vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                        stat_text = vote_count(
+                            remove_vote_result(section[1]), vote_type)
+                        wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                            section[0], stat_text)
+                    else:
+                        wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
                     wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
@@ -834,11 +926,21 @@ while True:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
-                sections_pattern = re.compile(r'==+ *(.*?[優|优]良[條|条]目[評|评][選|选].*?) *==+')
-                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                sections_pattern = re.compile(
+                    r'==+ *(.*?[優|优]良[條|条]目[評|评][選|选].*?) *==+')
+                section = extract_sections(
+                    site, add_matchObj.group(1), sections_pattern)
                 summary = 'GA：+[[' + add_matchObj.group(1) + ']]'
                 if section[0]:
-                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                    if section[1]:
+                        vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                        stat_text = vote_count(
+                            remove_vote_result(section[1]), vote_type)
+                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                            section[0], stat_text)
+                    else:
+                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
                     wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
@@ -851,10 +953,20 @@ while True:
             if add_matchObj:
                 summary = 'GA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                sections_pattern = re.compile(r'==+ *(.*?[優|优]良[條|条]目[評|评][選|选].*?) *==+')
-                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                sections_pattern = re.compile(
+                    r'==+ *(.*?[優|优]良[條|条]目[評|评][選|选].*?) *==+')
+                section = extract_sections(
+                    site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
-                    wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                    if section[1]:
+                        vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                        stat_text = vote_count(
+                            remove_vote_result(section[1]), vote_type)
+                        wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                            section[0], stat_text)
+                    else:
+                        wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
                     wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
@@ -867,10 +979,20 @@ while True:
             if add_matchObj:
                 summary = 'GA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                sections_pattern = re.compile(r'==+ *(.*?[優|优]良[條|条]目重[审|審].*?) *==+')
-                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                sections_pattern = re.compile(
+                    r'==+ *(.*?[優|优]良[條|条]目重[审|審].*?) *==+')
+                section = extract_sections(
+                    site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
-                    wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                    if section[1]:
+                        vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                        stat_text = vote_count(
+                            remove_vote_result(section[1]), vote_type)
+                        wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                            section[0], stat_text)
+                    else:
+                        wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
                     wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
@@ -894,8 +1016,10 @@ while True:
             if add_matchObj:
                 summary = 'PR：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                sections_pattern = re.compile(r'==+ *(.*?同行[評|评][審|审].*?) *==+')
-                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                sections_pattern = re.compile(
+                    r'==+ *(.*?同行[評|评][審|审].*?) *==+')
+                section = extract_sections(
+                    site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
                     wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
