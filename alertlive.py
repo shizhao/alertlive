@@ -5,6 +5,7 @@ import time
 import json
 import datetime
 import alert_config
+import pywikibot.textlib as textlib
 
 site = pywikibot.Site()
 
@@ -191,6 +192,23 @@ def post2wiki(alert_page, workflows, cache, summary):
     # TEST: 正式测试运行
     wikipage.text = text
     wikipage.save(summary)
+
+
+# 存档内容处理，提取章节标题和内容
+def extract_sections(site, title, sections_pattern):
+    page = pywikibot.Page(site, title)
+    wikitext = page.text
+    result = textlib.extract_sections(wikitext, site)
+
+    for s in result.sections:
+        math_section_title = sections_pattern.search(s.title)
+        if math_section_title:
+            section_title = math_section_title.group(1)
+            section_content = s.content
+        else:
+            section_title = ''
+            section_content = ''
+    return (section_title, section_content)
 
 
 # 对分类改变的数据进行处理
@@ -447,7 +465,6 @@ while True:
                                 'VFD', wikitextformat, summary, vfdtemplate)
             # 移除分类
             elif remove_matchObj:
-                # TODO：保留的不同形式：合并等
                 summary = '存废：-[[' + remove_matchObj.group(1) + ']]'
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
@@ -671,8 +688,13 @@ while True:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
+                sections_pattern = re.compile(r'==+ *(.*?特色列表[評|评][選|选].*?) *==+')
+                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                if section[0]:
+                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}|讨论存档]]'
                 summary = 'FL：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
                     add_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
 
@@ -683,7 +705,12 @@ while True:
             if add_matchObj:
                 summary = 'FL：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}|讨论存档]]'
+                sections_pattern = re.compile(r'==+ *(.*?特色列表[評|评][選|选].*?) *==+')
+                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                if section[0]:
+                    wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'FC', wikitextformat, summary, with_talk=True)
 
@@ -694,7 +721,12 @@ while True:
             if add_matchObj:
                 summary = 'FL：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}|讨论存档]]'
+                sections_pattern = re.compile(r'==+ *(.*?特色列表重[审|審].*?) *==+')
+                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                if section[0]:
+                    wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'FC', wikitextformat, summary, with_talk=True)
 
@@ -730,7 +762,12 @@ while True:
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
                 summary = 'FA：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}|讨论存档]]'
+                sections_pattern = re.compile(r'==+ *(.*?典[范|範][條|条]目[評|评][選|选].*?) *==+')
+                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                if section[0]:
+                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
                     add_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
 
@@ -741,7 +778,12 @@ while True:
             if add_matchObj:
                 summary = 'FA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}|讨论存档]]'
+                sections_pattern = re.compile(r'==+ *(.*?典[范|範][條|条]目[評|评][選|选].*?) *==+')
+                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                if section[0]:
+                    wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'FC', wikitextformat, summary, with_talk=True)
 
@@ -752,7 +794,12 @@ while True:
             if add_matchObj:
                 summary = 'FA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}|讨论存档]]'
+                sections_pattern = re.compile(r'==+ *(.*?典[范|範][條|条]目重[审|審].*?) *==+')
+                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                if section[0]:
+                    wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'FC', wikitextformat, summary, with_talk=True)
 
@@ -787,8 +834,13 @@ while True:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
+                sections_pattern = re.compile(r'==+ *(.*?[優|优]良[條|条]目[評|评][選|选].*?) *==+')
+                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
                 summary = 'GA：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}|讨论存档]]'
+                if section[0]:
+                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
                     add_matchObj, change), 'GA', wikitextformat, summary, with_talk=True)
 
@@ -799,7 +851,12 @@ while True:
             if add_matchObj:
                 summary = 'GA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}|讨论存档]]'
+                sections_pattern = re.compile(r'==+ *(.*?[優|优]良[條|条]目[評|评][選|选].*?) *==+')
+                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                if section[0]:
+                    wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'GA', wikitextformat, summary, with_talk=True)
 
@@ -810,7 +867,12 @@ while True:
             if add_matchObj:
                 summary = 'GA：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}|讨论存档]]'
+                sections_pattern = re.compile(r'==+ *(.*?[優|优]良[條|条]目重[审|審].*?) *==+')
+                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                if section[0]:
+                    wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'GA', wikitextformat, summary, with_talk=True)
 
@@ -832,7 +894,12 @@ while True:
             if add_matchObj:
                 summary = 'PR：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}|讨论存档]]'
+                sections_pattern = re.compile(r'==+ *(.*?同行[評|评][審|审].*?) *==+')
+                section = extract_sections(site, add_matchObj.group(1), sections_pattern)
+                if section[0]:
+                    wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'PR', wikitextformat, summary, with_talk=True)
 
