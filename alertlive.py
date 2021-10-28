@@ -222,6 +222,18 @@ def remove_vote_result(section_content):
     return vote_content
 
 
+# 获取在对话页存档的DYK投票讨论内容
+def DYK_archive_content(site, talk_title):
+    page = pywikibot.Page(site, talk_title)
+    wikitext = page.text
+    pattern = re.compile(r'{{DYKEntry\/archive.*?{{DYKvoteF}}', re.S)
+    DYK_archive_list = pattern.findall(wikitext)
+    if DYK_archive_list:
+        return DYK_archive_list.pop()
+    else:
+        return None
+
+
 # 对结果进行统计
 # vote_type is dict：{'支持':['{{全部小写的模板}}'], '反对':['{{全部小写的模板}}']}
 def vote_count(vote_content, vote_type):
@@ -686,7 +698,15 @@ while True:
             if add_matchObj:
                 summary = 'DYK：+[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]]'
+                archive_content = DYK_archive_content(
+                    site, add_matchObj.group(1))
+                if archive_content:
+                    vote_type = {'支持': ['{{support}}', '{{支持}}', '{{pro}}', '{{sp}}', '{{zc}}'], '反对': [
+                        '{{oppose}}', '{{反对}}', '{{反對}}', '{{contra}}', '{{不同意}}', '{{o}}']}
+                    stat_text = vote_count(archive_content, vote_type)
+                    wikitextformat = '* {date}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]] %s' % stat_text
+                else:
+                    wikitextformat = '* {date}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'DYK', wikitextformat, summary, with_talk=True)
 
