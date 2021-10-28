@@ -240,20 +240,37 @@ def vote_count(vote_content, vote_type):
     vote_count = {}
     # 初始化 vote_count = {'支持':0, '反对':0}
     for k in vote_type:
-        vote_count[k] = 0
+        if k != 'KEEP_ITEMS':
+            vote_count[k] = 0
     # 按行拆分
     # TODO: 参与人数统计
     for line in vote_content.lower().splitlines(True):
         for k, v in vote_type.items():
-            for t in v:
-                if line.find(t) != -1:
-                    vote_count[k] += 1
+            if k != 'KEEP_ITEMS':
+                for t in v:
+                    if line.find(t) != -1:
+                        vote_count[k] += 1
     stat_list = []
     for k, v in vote_count.items():
-        stat_list.append('%s：%s' % (k, v))
+        if k in vote_type['KEEP_ITEMS'] or v > 0:
+            stat_list.append('%s：%s' % (k, v))
     stat_text = '，'.join(stat_list)
     stat_text = '<small>（<abbr title="%s">结果统计</abbr>）</small>' % stat_text
+    print(stat_text)
     return stat_text
+
+
+# 提取VFD讨论的内容
+def extract_VFD_content(site, vfd_page_title, sections_pattern):
+    page = pywikibot.Page(site, vfd_page_title)
+    wikitext = page.text
+    result = textlib.extract_sections(wikitext, site)
+    section_content = ''
+    for s in result.sections:
+        math_section_title = sections_pattern.search(s.title)
+        if math_section_title:
+            section_content = s.content
+    return section_content
 
 
 # 对分类改变的数据进行处理
@@ -480,7 +497,6 @@ while True:
                       change['comment'])
 
         # ================VFD=======================
-        # TODO: 计票
         elif change['title'] in alert_config.vfdcat:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
@@ -499,6 +515,17 @@ while True:
                             if p.split('=', 1)[0].lower() == 'date':
                                 vfddate = p.split('=', 1)[1]
                 if vfddate:
+                    vfd_file = './alert_data/vfddata.json'
+                    try:
+                        with open(vfd_file, 'r') as f:
+                            vfddata = json.load(f)
+                    except FileNotFoundError:
+                        vfddata = {}
+                    vfd_title = add_matchObj.group(1)
+                    vfd_page_title = 'Wikipedia:頁面存廢討論/記錄/%s' % vfddate
+                    vfddata[vfd_title] = vfd_page_title
+                    dump_cache(vfd_file, vfddata)
+
                     talkat = '➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|讨论存档]]' % (
                         vfddate, add_matchObj.group(1))
                     wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="<nowiki>{reason}</nowiki>">存废讨论</abbr> ➡️ [[Wikipedia:頁面存廢討論/記錄/%s#%s|参与讨论]]' % (
@@ -511,20 +538,51 @@ while True:
             # 移除分类
             elif remove_matchObj:
                 summary = '存废：-[[' + remove_matchObj.group(1) + ']]'
+                vfd_title = remove_matchObj.group(1)
+                sections_pattern = re.compile(
+                    r'==+ *\[\[:(%s)\]\] *==+' % re.escape(vfd_title))
+                vote_type = {'保留': ['{{保留}}', '{{keep}}', '{{vk}}', '{{已打捞}}', '{{已打撈}}', '{{saved}}', '{{salvaged}}', '{{已}}', '{{快速保留}}', '{{sk}}', '{{speedy keep}}', '{{快保}}', '{{vtk}}', '{{暫時保留}}', '{{暂时保留}}'],
+                             '删除': ['{{vd}}', '{{删除}}', '{{刪除}}', '{{del}}', '{{removal}}', '{{remove}}', '{{vsd}}', '{{快速刪除}}', '{{vn}}', '{{删后重建}}', '{{刪後重建}}', '{{vtn}}', '{{到時重建}}'],
+                             '中立': ['{{neutral}}', '{{中立}}'],
+                             '消歧义': ['{{vdab}}', '{{改為消歧義}}'],
+                             '重定向': ['{{vr}}', '{{重定向}}', '{{重新導向}}'],
+                             '移動': ['{{nvm}}', '{{不留重定向移動}}', '{{不留重新導向移動}}', '{{vmp}}', '{{vmove}}', '{{移動}}', '{{移动}}', '{{迁移}}', '{{转移}}', '{{move to}}', '{{userfy}}', '{{移动到用户页}}', '{{vmu}}', '{{移動到用戶頁}}', '{{移動至用戶頁}}', '{{迁移到用户页}}', '{{移動到使用者頁面}}'],
+                             '合并': ['{{vm}}', '{{合并}}', '{{合併}}', '{{vmerge}}'],
+                             '迁移到其他计划': ['{{vmd}}', '{{移動到詞典}}', '{{移动到词典}}', '{{vmt}}', '{{移動到辭典}}', '{{迁移到词典}}', '{{vms}}', '{{移動到文庫}}', '{{移动到文库}}', '{{迁移到文库}}', '{{vmb}}', '{{移動到教科書}}', '{{移动到教科书}}', '{{迁移到教科书}}', '{{vmq}}', '{{移動到語錄}}', '{{移动到语录}}', '{{迁移到语录}}', '{{vmvoy}}', '{{迁移到导游}}', '{{移动到导游}}', '{{移動到導遊}}', '{{vmv}}', '{{迁移到学院}}', '{{移動到學院}}'],
+                             '意见': ['{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'],
+                             'KEEP_ITEMS': ['保留', '删除']
+                             }
+                vfd_file = './alert_data/vfddata.json'
+                try:
+                    with open(vfd_file, 'r') as f:
+                        vfddata = json.load(f)
+                except FileNotFoundError:
+                    vfddata = {}
+                if vfd_title in vfddata:
+                    vote_content = extract_VFD_content(
+                        site, vfddata[vfd_title], sections_pattern)
+                    stat_text = vote_count(vote_content, vote_type)
+                else:
+                    stat_text = ''
+
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
                         site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]] {talkat}' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]] {talkat} %s' % (
+                        target.title(), stat_text)
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
                     target = pywikibot.Page(site, remove_matchObj.group(
                         1)).getCategoryRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]] {talkat}' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]] {talkat} %s' % (
+                        target.title(), stat_text)
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}改为消歧义页 {talkat}'
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}改为消歧义页 {talkat} %s' % stat_text
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}保留 {talkat}'
+                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}保留 {talkat} %s' % stat_text
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'VFD', wikitextformat, summary)
+                del vfddata[vfd_title]
+                dump_cache(vfd_file, vfddata)
             else:
                 print('Cannot match the comment text in categorize: %s' %
                       change['comment'])
@@ -702,7 +760,7 @@ while True:
                     site, add_matchObj.group(1))
                 if archive_content:
                     vote_type = {'支持': ['{{support}}', '{{支持}}', '{{pro}}', '{{sp}}', '{{zc}}'], '反对': [
-                        '{{oppose}}', '{{反对}}', '{{反對}}', '{{contra}}', '{{不同意}}', '{{o}}']}
+                        '{{oppose}}', '{{反对}}', '{{反對}}', '{{contra}}', '{{不同意}}', '{{o}}'], 'KEEP_ITEMS': ['支持', '反对']}
                     stat_text = vote_count(archive_content, vote_type)
                     wikitextformat = '* {date}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]] %s' % stat_text
                 else:
@@ -748,7 +806,7 @@ while True:
                 if section[0]:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
-                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(
                             remove_vote_result(section[1]), vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
@@ -775,7 +833,7 @@ while True:
                 if section[0]:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
-                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(
                             remove_vote_result(section[1]), vote_type)
                         wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
@@ -800,7 +858,7 @@ while True:
                 if section[0]:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
-                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(
                             remove_vote_result(section[1]), vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
@@ -851,7 +909,7 @@ while True:
                 if section[0]:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
-                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(
                             remove_vote_result(section[1]), vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
@@ -877,7 +935,7 @@ while True:
                 if section[0]:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
-                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(
                             remove_vote_result(section[1]), vote_type)
                         wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
@@ -903,7 +961,7 @@ while True:
                 if section[0]:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
-                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(
                             remove_vote_result(section[1]), vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
@@ -954,7 +1012,7 @@ while True:
                 if section[0]:
                     if section[1]:
                         vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
-                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(
                             remove_vote_result(section[1]), vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
@@ -980,7 +1038,7 @@ while True:
                 if section[0]:
                     if section[1]:
                         vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
-                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(
                             remove_vote_result(section[1]), vote_type)
                         wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
@@ -1006,7 +1064,7 @@ while True:
                 if section[0]:
                     if section[1]:
                         vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
-                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}']}
+                            '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(
                             remove_vote_result(section[1]), vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
