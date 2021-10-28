@@ -581,7 +581,11 @@ while True:
                     wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}保留 {talkat} %s' % stat_text
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'VFD', wikitextformat, summary)
-                del vfddata[vfd_title]
+                try:
+                    del vfddata[vfd_title]
+                except KeyError as e:
+                    print('KeyError: ', e)
+
                 dump_cache(vfd_file, vfddata)
             else:
                 print('Cannot match the comment text in categorize: %s' %
