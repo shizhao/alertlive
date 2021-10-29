@@ -215,7 +215,7 @@ def extract_sections(site, title, sections_pattern):
 def remove_vote_result(content):
     if '----' in content:
         section_content_list = content.split('----')
-    if '<hr>' in content:
+    elif '<hr>' in content:
         section_content_list = content.split('<hr>')
     if len(section_content_list) > 1:
         section_content_list.pop()
