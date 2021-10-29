@@ -212,13 +212,16 @@ def extract_sections(site, title, sections_pattern):
 
 
 # 删除投票讨论中的最后总结部分
-def remove_vote_result(section_content):
-    section_content_list = section_content.split('----')
+def remove_vote_result(content):
+    if '----' in content:
+        section_content_list = content.split('----')
+    if '<hr>' in content:
+        section_content_list = content.split('<hr>')
     if len(section_content_list) > 1:
         section_content_list.pop()
         vote_content = ''.join(section_content_list)
     else:
-        vote_content = section_content
+        vote_content = content
     return vote_content
 
 
@@ -236,14 +239,13 @@ def DYK_archive_content(site, talk_title):
 
 # 对结果进行统计
 # vote_type is dict：{'支持':['{{全部小写的模板}}'], '反对':['{{全部小写的模板}}']}
-def vote_count(vote_content, vote_type):
+def vote_count(site, vote_content, vote_type):
     vote_count = {}
     # 初始化 vote_count = {'支持':0, '反对':0}
     for k in vote_type:
         if k != 'KEEP_ITEMS':
             vote_count[k] = 0
     # 按行拆分
-    # TODO: 参与人数统计
     for line in vote_content.lower().splitlines(True):
         for k, v in vote_type.items():
             if k != 'KEEP_ITEMS':
@@ -255,7 +257,8 @@ def vote_count(vote_content, vote_type):
         if k in vote_type['KEEP_ITEMS'] or v > 0:
             stat_list.append('%s：%s' % (k, v))
     stat_text = '，'.join(stat_list)
-    stat_text = '<small>（<abbr title="%s">结果统计</abbr>）</small>' % stat_text
+    userscount = users_count(site, remove_vote_result(vote_content))
+    stat_text = '<small>（<abbr title="%s">参与人数：%d</abbr>）</small>' % (stat_text, userscount)
     print(stat_text)
     return stat_text
 
@@ -271,6 +274,22 @@ def extract_VFD_content(site, vfd_page_title, sections_pattern):
         if math_section_title:
             section_content = s.content
     return section_content
+
+
+# 讨论人数统计
+def users_count(site, vote_content):
+    pattern = re.compile(r'\[\[(.*?)\]\]', re.S)
+    wikilink_titles = pattern.findall(vote_content)
+    users = []
+    for title in wikilink_titles:
+        if title:
+            if title[0] == ':':
+                title = title[1:]
+            if '|' in title:
+                title = title.split('|', 1)[0]
+            if pywikibot.Page(site, title).namespace() == 'User:' and title not in users:
+                users.append(title)
+    return len(users)
 
 
 # 对分类改变的数据进行处理
@@ -561,7 +580,7 @@ while True:
                 if vfd_title in vfddata:
                     vote_content = extract_VFD_content(
                         site, vfddata[vfd_title], sections_pattern)
-                    stat_text = vote_count(vote_content, vote_type)
+                    stat_text = vote_count(site, vote_content, vote_type)
                 else:
                     stat_text = ''
 
@@ -765,7 +784,7 @@ while True:
                 if archive_content:
                     vote_type = {'支持': ['{{support}}', '{{支持}}', '{{pro}}', '{{sp}}', '{{zc}}'], '反对': [
                         '{{oppose}}', '{{反对}}', '{{反對}}', '{{contra}}', '{{不同意}}', '{{o}}'], 'KEEP_ITEMS': ['支持', '反对']}
-                    stat_text = vote_count(archive_content, vote_type)
+                    stat_text = vote_count(site, archive_content, vote_type)
                     wikitextformat = '* {date}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]] %s' % stat_text
                 else:
                     wikitextformat = '* {date}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]]'
@@ -811,8 +830,7 @@ while True:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
-                        stat_text = vote_count(
-                            remove_vote_result(section[1]), vote_type)
+                        stat_text = vote_count(site, section[1], vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
@@ -838,8 +856,7 @@ while True:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
-                        stat_text = vote_count(
-                            remove_vote_result(section[1]), vote_type)
+                        stat_text = vote_count(site, section[1], vote_type)
                         wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
@@ -863,8 +880,7 @@ while True:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
-                        stat_text = vote_count(
-                            remove_vote_result(section[1]), vote_type)
+                        stat_text = vote_count(site, section[1], vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
@@ -914,8 +930,7 @@ while True:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
-                        stat_text = vote_count(
-                            remove_vote_result(section[1]), vote_type)
+                        stat_text = vote_count(site, section[1], vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
@@ -940,8 +955,7 @@ while True:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
-                        stat_text = vote_count(
-                            remove_vote_result(section[1]), vote_type)
+                        stat_text = vote_count(site, section[1], vote_type)
                         wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
@@ -966,8 +980,7 @@ while True:
                     if section[1]:
                         vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
-                        stat_text = vote_count(
-                            remove_vote_result(section[1]), vote_type)
+                        stat_text = vote_count(site, section[1], vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
@@ -1017,8 +1030,7 @@ while True:
                     if section[1]:
                         vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
-                        stat_text = vote_count(
-                            remove_vote_result(section[1]), vote_type)
+                        stat_text = vote_count(site, section[1], vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
@@ -1043,8 +1055,7 @@ while True:
                     if section[1]:
                         vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
-                        stat_text = vote_count(
-                            remove_vote_result(section[1]), vote_type)
+                        stat_text = vote_count(site, section[1], vote_type)
                         wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
@@ -1069,8 +1080,7 @@ while True:
                     if section[1]:
                         vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
-                        stat_text = vote_count(
-                            remove_vote_result(section[1]), vote_type)
+                        stat_text = vote_count(site, section[1], vote_type)
                         wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
@@ -1103,7 +1113,8 @@ while True:
                 section = extract_sections(
                     site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
-                    wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                    stat_text = '<small>（参与人数：%d）</small>' % users_count(site, remove_vote_result(section[1]))
+                    wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (section[0], stat_text)
                 else:
                     wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
