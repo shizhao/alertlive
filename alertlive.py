@@ -213,6 +213,7 @@ def extract_sections(site, title, sections_pattern):
 
 # 删除投票讨论中的最后总结部分
 def remove_vote_result(content):
+    section_content_list = []
     if '----' in content:
         section_content_list = content.split('----')
     elif '<hr>' in content:
