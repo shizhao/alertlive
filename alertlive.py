@@ -350,6 +350,8 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                 archive_summary = dateclean_cache[1]
                 if archive_summary:
                     summary1 = summary + archive_summary  # [[Special:diff/68430264]]
+                else:
+                    summary1 = summary
                 print(stream_data)
                 print(jsonfile, cache)
                 dump_cache('./alert_data/'+jsonfile, cache)
@@ -731,13 +733,15 @@ while True:
                         cache = dateclean_cache[0]
                         archive_summary = dateclean_cache[1]
                         if archive_summary:
-                            summary += archive_summary
+                            summary1 = summary + archive_summary  # [[Special:diff/68430264]]
+                        else:
+                            summary1 = summary
                         print(stream_data)
                         # print(change)
                         print(file, cache)
                         dump_cache('./alert_data/'+file, cache)
                         alertcheck(alert_page)
-                        post2wiki(alert_page, workflows, cache, summary)
+                        post2wiki(alert_page, workflows, cache, summary1)
 
             # TODO: 移除分类是否要处理?
 
@@ -1377,13 +1381,15 @@ while True:
                     cache = dateclean_cache[0]
                     archive_summary = dateclean_cache[1]
                     if archive_summary:
-                        summary += archive_summary
+                        summary1 = summary + archive_summary  # [[Special:diff/68430264]]
+                    else:
+                        summary1 = summary
                     print(stream_data)
                     # print(change)
                     print(file, cache)
                     dump_cache('./alert_data/'+file, cache)
                     alertcheck(alert_page)
-                    post2wiki(alert_page, workflows, cache, summary)
+                    post2wiki(alert_page, workflows, cache, summary1)
 
         # ================保护=======================
         elif change['log_type'] == 'protect':
@@ -1427,13 +1433,15 @@ while True:
                     cache = dateclean_cache[0]
                     archive_summary = dateclean_cache[1]
                     if archive_summary:
-                        summary += archive_summary
+                        summary1 = summary + archive_summary  # [[Special:diff/68430264]]
+                    else:
+                        summary1 = summary
                     print(stream_data)
                     # print(change)
                     print(file, cache)
                     dump_cache('./alert_data/'+file, cache)
                     alertcheck(alert_page)
-                    post2wiki(alert_page, workflows, cache, summary)
+                    post2wiki(alert_page, workflows, cache, summary1)
 
 
 """TODO: 
