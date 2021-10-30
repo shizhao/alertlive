@@ -259,7 +259,7 @@ def vote_count(site, vote_content, vote_type):
             stat_list.append('%s：%s' % (k, v))
     stat_text = '，'.join(stat_list)
     userscount = users_count(site, remove_vote_result(vote_content))
-    stat_text = '<small>（<abbr title="%s">参与人数：%d</abbr>）</small>' % (stat_text, userscount)
+    stat_text = '<small>（<abbr title="%s">参与人数：<b>%d</b></abbr>）</small>' % (stat_text, userscount)
     print(stat_text)
     return stat_text
 
@@ -349,12 +349,12 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                 cache = dateclean_cache[0]
                 archive_summary = dateclean_cache[1]
                 if archive_summary:
-                    summary += archive_summary
+                    summary1 = summary + archive_summary  # [[Special:diff/68430264]]
                 print(stream_data)
                 print(jsonfile, cache)
                 dump_cache('./alert_data/'+jsonfile, cache)
                 alertcheck(alert_page)  # 每次更新时检查alert模板的参数有无变化
-                post2wiki(alert_page, workflows, cache, summary)
+                post2wiki(alert_page, workflows, cache, summary1)
 
 # 对分类改变的处理，弃用
 
@@ -1026,7 +1026,7 @@ while True:
                     r'==+ *(.*?[優|优]良[條|条]目[評|评][選|选].*?) *==+')
                 section = extract_sections(
                     site, add_matchObj.group(1), sections_pattern)
-                summary = 'GA：+[[' + add_matchObj.group(1) + ']]'
+                summary = 'GA：+[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
                 if section[0]:
                     if section[1]:
                         vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
@@ -1114,7 +1114,7 @@ while True:
                 section = extract_sections(
                     site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
-                    stat_text = '<small>（参与人数：%d）</small>' % users_count(site, remove_vote_result(section[1]))
+                    stat_text = '<small>（参与人数：<b>%d</b>）</small>' % users_count(site, remove_vote_result(section[1]))
                     wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (section[0], stat_text)
                 else:
                     wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}|讨论存档]]'
