@@ -247,6 +247,7 @@ def vote_count(site, vote_content, vote_type):
         if k != 'KEEP_ITEMS':
             vote_count[k] = 0
     # 按行拆分
+    vote_content = remove_vote_result(vote_content)
     for line in vote_content.lower().splitlines(True):
         for k, v in vote_type.items():
             if k != 'KEEP_ITEMS':
@@ -258,7 +259,7 @@ def vote_count(site, vote_content, vote_type):
         if k in vote_type['KEEP_ITEMS'] or v > 0:
             stat_list.append('%s：%s' % (k, v))
     stat_text = '，'.join(stat_list)
-    userscount = users_count(site, remove_vote_result(vote_content))
+    userscount = users_count(site, vote_content)
     stat_text = '<small>（<abbr title="%s">参与人数：<b>%d</b></abbr>）</small>' % (stat_text, userscount)
     print(stat_text)
     return stat_text
@@ -353,7 +354,7 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                 else:
                     summary1 = summary
                 print(stream_data)
-                print(jsonfile, cache)
+                print('Dump: ', jsonfile)
                 dump_cache('./alert_data/'+jsonfile, cache)
                 alertcheck(alert_page)  # 每次更新时检查alert模板的参数有无变化
                 post2wiki(alert_page, workflows, cache, summary1)
@@ -738,7 +739,7 @@ while True:
                             summary1 = summary
                         print(stream_data)
                         # print(change)
-                        print(file, cache)
+                        print('Dump: ', jsonfile)
                         dump_cache('./alert_data/'+file, cache)
                         alertcheck(alert_page)
                         post2wiki(alert_page, workflows, cache, summary1)
@@ -1419,7 +1420,7 @@ while True:
                         summary1 = summary
                     print(stream_data)
                     # print(change)
-                    print(file, cache)
+                    print('Dump: ', jsonfile)
                     dump_cache('./alert_data/'+file, cache)
                     alertcheck(alert_page)
                     post2wiki(alert_page, workflows, cache, summary1)
@@ -1471,7 +1472,7 @@ while True:
                         summary1 = summary
                     print(stream_data)
                     # print(change)
-                    print(file, cache)
+                    print('Dump: ', jsonfile)
                     dump_cache('./alert_data/'+file, cache)
                     alertcheck(alert_page)
                     post2wiki(alert_page, workflows, cache, summary1)
