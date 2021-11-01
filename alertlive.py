@@ -289,7 +289,7 @@ def users_count(site, vote_content):
                 title = title[1:]
             if '|' in title:
                 title = title.split('|', 1)[0]
-            if pywikibot.Page(site, title).namespace() == 'User:' and title not in users:
+            if pywikibot.Page(site, title).namespace() == 'User:' and title not in users and '/' not in title:  #去除子页面
                 users.append(title)
     return len(users)
 
