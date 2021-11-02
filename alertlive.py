@@ -1405,11 +1405,6 @@ while True:
                             wikitextformat = '* {{{{color|#72777d|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
                             stream_data = logdata(change)
                             if 'talkat' in dict:
-                                #stream_data['talkat'] = dict['talkat']
-                                #vfdlink_pattern = re.compile(r'\[\[(Wikipedia:頁面存廢討論/記錄/.*?)#.*?')
-                                #vfd_math = vfdlink_pattern.saerch(dict['talkat'])
-                                #if vfd_math:
-                                #    vfd_link = vfd_math.group(1)
                                 sections_pattern = re.compile(r'==+ *\[\[:(%s)\]\] *==+' % re.escape(change['title']))
                                 vote_type = {'保留': ['{{保留}}', '{{keep}}', '{{vk}}', '{{已打捞}}', '{{已打撈}}', '{{saved}}', '{{salvaged}}', '{{已}}', '{{快速保留}}', '{{sk}}', '{{speedy keep}}', '{{快保}}', '{{vtk}}', '{{暫時保留}}', '{{暂时保留}}'],
                                     '删除': ['{{vd}}', '{{删除}}', '{{刪除}}', '{{del}}', '{{removal}}', '{{remove}}', '{{vsd}}', '{{快速刪除}}', '{{vn}}', '{{删后重建}}', '{{刪後重建}}', '{{vtn}}', '{{到時重建}}'],
