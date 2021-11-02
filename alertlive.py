@@ -289,7 +289,7 @@ def users_count(site, vote_content):
                 title = title[1:]
             if '|' in title:
                 title = title.split('|', 1)[0]
-            if pywikibot.Page(site, title).namespace() == 'User:' and title not in users and '/' not in title:  #去除子页面
+            if pywikibot.Page(site, title).namespace() == 'User:' and title not in users and '/' not in title:  # 去除子页面
                 users.append(title)
     return len(users)
 
@@ -739,7 +739,7 @@ while True:
                             summary1 = summary
                         print(stream_data)
                         # print(change)
-                        print('Dump: ', jsonfile)
+                        print('Dump: ', file)
                         dump_cache('./alert_data/'+file, cache)
                         alertcheck(alert_page)
                         post2wiki(alert_page, workflows, cache, summary1)
@@ -1275,6 +1275,8 @@ while True:
             remove_matchObj = re.match(
                 alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
+                talkat = ''
+                talk = ''
                 summary = '合并：+[[' + add_matchObj.group(1) + ']]'
                 for tuple in pywikibot.Page(site, add_matchObj.group(1)).templatesWithParams():
                     mmitem = []
@@ -1283,68 +1285,101 @@ while True:
                             for t in tuple[1]:
                                 if '=' not in t:
                                     mmitem.append(t)
+                                if 'discuss' == t.split('=')[0]:
+                                    talk = t.split('=')[1]
+                                    if talk:
+                                        talk = '➡️ [[%s|参与讨论]]' % talk
+                                        talkat = '➡️ [[%s|讨论结果]]' % talk
+                                    else:
+                                        talk = ''
+                                        talkat = ''
+
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
                         if mmitem:
                             mmstr = ']]、[['.join(mmitem)
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议将[[%s]]合并到本页' % mmstr
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议将[[%s]]合并到本页 %s' % (mmstr, talk)
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
                     elif tuple[0].title() == 'Template:Merge to':
                         if tuple[1]:
                             for t in tuple[1]:
                                 if '=' not in t:
                                     mmitem.append(t)
+                                if 'discuss' == t.split('=')[0]:
+                                    talk = t.split('=')[1]
+                                    if talk:
+                                        talk = '➡️ [[%s|参与讨论]]' % talk
+                                        talkat = '➡️ [[%s|讨论结果]]' % talk
+                                    else:
+                                        talk = ''
+                                        talkat = ''
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
                         if mmitem:
                             mmstr = ']]、[['.join(mmitem)
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并到[[%s]]' % mmstr
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并到[[%s]] %s' % (mmstr, talk)
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
                     elif tuple[0].title() == 'Template:Merge':
                         if tuple[1]:
                             for t in tuple[1]:
                                 if '=' not in t:
                                     mmitem.append(t)
+                                if 'discuss' == t.split('=')[0]:
+                                    talk = t.split('=')[1]
+                                    if talk:
+                                        talk = '➡️ [[%s|参与讨论]]' % talk
+                                        talkat = '➡️ [[%s|讨论结果]]' % talk
+                                    else:
+                                        talk = ''
+                                        talkat = ''
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
                         if mmitem:
                             mmstr = ']]、[['.join(mmitem)
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议与[[%s]]合并' % mmstr
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议与[[%s]]合并 %s' % (mmstr, talk)
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并'
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
                     elif tuple[0].title() == 'Template:Merging':
                         if tuple[1]:
                             for t in tuple[1]:
                                 if '=' not in t:
                                     mmitem.append(t)
+                                if 'discuss' == t.split('=')[0]:
+                                    talk = t.split('=')[1]
+                                    if talk:
+                                        talk = '➡️ [[%s|参与讨论]]' % talk
+                                        talkat = '➡️ [[%s|讨论结果]]' % talk
+                                    else:
+                                        talk = ''
+                                        talkat = ''
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划合并'
+                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划合并 %s' % talk
                         if mmitem:
                             mmstr = ']]、[['.join(mmitem)
-                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划与[[%s]]合并' % mmstr
+                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划与[[%s]]合并 %s' % (mmstr, talk)
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划合并'
+                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划合并 %s' % talk
                 process_catdata(site, categorize(
-                    add_matchObj, change), 'MM', wikitextformat, summary)
+                    add_matchObj, change, talkat = talkat), 'MM', wikitextformat, summary)
             # 移除分类
             elif remove_matchObj:
                 summary = '合并：-[[' + remove_matchObj.group(1) + ']]'
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
                         site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并到[[:%s]]' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并到[[:%s]] {talkat}' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
                     target = pywikibot.Page(site, remove_matchObj.group(
                         1)).getCategoryRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并到[[:%s]]' % target.title()
+                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并到[[:%s]] {talkat}' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并后改为消歧义页'
+                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并后改为消歧义页 {talkat}'
                 elif not pywikibot.Page(site, remove_matchObj.group(1)).exists():
                     wikitextformat = '* {date}：[[:{title}]]在解决了合并问题后被删除'
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}解决了合并问题'
+                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}解决了合并问题 {talkat}'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'MM', wikitextformat, summary)
 
@@ -1420,7 +1455,7 @@ while True:
                         summary1 = summary
                     print(stream_data)
                     # print(change)
-                    print('Dump: ', jsonfile)
+                    print('Dump: ', file)
                     dump_cache('./alert_data/'+file, cache)
                     alertcheck(alert_page)
                     post2wiki(alert_page, workflows, cache, summary1)
@@ -1472,7 +1507,7 @@ while True:
                         summary1 = summary
                     print(stream_data)
                     # print(change)
-                    print('Dump: ', jsonfile)
+                    print('Dump: ', file)
                     dump_cache('./alert_data/'+file, cache)
                     alertcheck(alert_page)
                     post2wiki(alert_page, workflows, cache, summary1)
