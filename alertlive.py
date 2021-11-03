@@ -20,12 +20,16 @@ def categorize(matchObj, change, **kwargs):
             'action': matchObj.group(2),
             'category': change['title'],
             'reason': '',
-            'talkat': ''
+            'talkat': '',
+            'splitto': '',
+            'moveto': ''
             }
     if 'talkat' in kwargs:
         dict['talkat'] = kwargs['talkat']
     if 'moveto' in kwargs:
         dict['moveto'] = kwargs['moveto']
+    if 'splitto' in kwargs:
+        dict['splitto'] = kwargs['splitto']
     return dict
 
 
@@ -336,9 +340,12 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                         if cache_type[i]['title'] == stream_data['title']:
                             if 'talkat' in cache_type[i]:
                                 stream_data['talkat'] = cache_type[i]['talkat']
-                                if stream_data['talkat']:
-                                    stream_data['wikitext'] = wikitextformat.format(
-                                        **stream_data)
+                            if 'moveto' in cache_type[i]:
+                                stream_data['moveto'] = cache_type[i]['moveto']
+                            if 'splitto' in cache_type[i]:
+                                stream_data['splitto'] = cache_type[i]['splitto']
+                            stream_data['wikitext'] = wikitextformat.format(
+                                **stream_data)
                             cache_type[i] = stream_data
                         else:
                             n += 1
@@ -1134,14 +1141,37 @@ while True:
             remove_matchObj = re.match(
                 alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
+                talkat = ''
+                talking = ''
+                for tuple in pywikibot.Page(site, add_matchObj.group(1)).templatesWithParams():
+                    splititem = []
+                    if tuple[0].title() == 'Template:Split':
+                        if tuple[1]:
+                            for t in tuple[1]:
+                                if '=' not in t:
+                                    splititem.append(t)
+                                if 'discuss' == t.split('=')[0]:
+                                    talk = t.split('=')[1]
+                                    if talk:
+                                        talking = '➡️ [[%s|参与讨论]]' % talk
+                                        talkat = '➡️ [[%s|讨论结果]]' % talk
+                                    else:
+                                        talking = ''
+                                        talkat = ''
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议拆分'
+                        if splititem:
+                            splitstr = ']]、[['.join(splititem)
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议拆分到[[%s]] %s' % (splitstr, talking)
+                        else:
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议拆分 %s' % talking
                 summary = '拆分：+[[' + add_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议拆分'
                 process_catdata(site, categorize(
-                    add_matchObj, change), 'SPLIT', wikitextformat, summary)
+                    add_matchObj, change, talkat=talkat), 'SPLIT', wikitextformat, summary)
             # 移除分类
             elif remove_matchObj:
                 summary = '拆分：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已经由{{{{User|{user}|small=1}}}}解决了拆分问题'
+                wikitextformat = '* {date}：[[:{title}]]已经由{{{{User|{user}|small=1}}}}解决了拆分问题 {talkat}'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'SPLIT', wikitextformat, summary)
             else:
@@ -1276,7 +1306,7 @@ while True:
                 alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
                 talkat = ''
-                talk = ''
+                talking = ''
                 summary = '合并：+[[' + add_matchObj.group(1) + ']]'
                 for tuple in pywikibot.Page(site, add_matchObj.group(1)).templatesWithParams():
                     mmitem = []
@@ -1288,19 +1318,19 @@ while True:
                                 if 'discuss' == t.split('=')[0]:
                                     talk = t.split('=')[1]
                                     if talk:
-                                        talk = '➡️ [[%s|参与讨论]]' % talk
+                                        talking = '➡️ [[%s|参与讨论]]' % talk
                                         talkat = '➡️ [[%s|讨论结果]]' % talk
                                     else:
-                                        talk = ''
+                                        talking = ''
                                         talkat = ''
 
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talking
                         if mmitem:
                             mmstr = ']]、[['.join(mmitem)
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议将[[%s]]合并到本页 %s' % (mmstr, talk)
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议将[[%s]]合并到本页 %s' % (mmstr, talking)
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talking
                     elif tuple[0].title() == 'Template:Merge to':
                         if tuple[1]:
                             for t in tuple[1]:
@@ -1309,18 +1339,18 @@ while True:
                                 if 'discuss' == t.split('=')[0]:
                                     talk = t.split('=')[1]
                                     if talk:
-                                        talk = '➡️ [[%s|参与讨论]]' % talk
+                                        talking = '➡️ [[%s|参与讨论]]' % talk
                                         talkat = '➡️ [[%s|讨论结果]]' % talk
                                     else:
-                                        talk = ''
+                                        talking = ''
                                         talkat = ''
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talking
                         if mmitem:
                             mmstr = ']]、[['.join(mmitem)
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并到[[%s]] %s' % (mmstr, talk)
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并到[[%s]] %s' % (mmstr, talking)
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talking
                     elif tuple[0].title() == 'Template:Merge':
                         if tuple[1]:
                             for t in tuple[1]:
@@ -1329,18 +1359,18 @@ while True:
                                 if 'discuss' == t.split('=')[0]:
                                     talk = t.split('=')[1]
                                     if talk:
-                                        talk = '➡️ [[%s|参与讨论]]' % talk
+                                        talking = '➡️ [[%s|参与讨论]]' % talk
                                         talkat = '➡️ [[%s|讨论结果]]' % talk
                                     else:
-                                        talk = ''
+                                        talking = ''
                                         talkat = ''
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talking
                         if mmitem:
                             mmstr = ']]、[['.join(mmitem)
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议与[[%s]]合并 %s' % (mmstr, talk)
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议与[[%s]]合并 %s' % (mmstr, talking)
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talk
+                            wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议合并 %s' % talking
                     elif tuple[0].title() == 'Template:Merging':
                         if tuple[1]:
                             for t in tuple[1]:
@@ -1349,18 +1379,18 @@ while True:
                                 if 'discuss' == t.split('=')[0]:
                                     talk = t.split('=')[1]
                                     if talk:
-                                        talk = '➡️ [[%s|参与讨论]]' % talk
+                                        talking = '➡️ [[%s|参与讨论]]' % talk
                                         talkat = '➡️ [[%s|讨论结果]]' % talk
                                     else:
-                                        talk = ''
+                                        talking = ''
                                         talkat = ''
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划合并 %s' % talk
+                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划合并 %s' % talking
                         if mmitem:
                             mmstr = ']]、[['.join(mmitem)
-                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划与[[%s]]合并 %s' % (mmstr, talk)
+                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划与[[%s]]合并 %s' % (mmstr, talking)
                         else:
-                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划合并 %s' % talk
+                            wikitextformat = '* {date}：[[:{title}]]正在被{{{{User|{user}|small=1}}}}计划合并 %s' % talking
                 process_catdata(site, categorize(
                     add_matchObj, change, talkat = talkat), 'MM', wikitextformat, summary)
             # 移除分类
