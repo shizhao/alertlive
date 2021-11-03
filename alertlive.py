@@ -469,15 +469,15 @@ while True:
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
                         site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
                     target = pywikibot.Page(site, remove_matchObj.group(
                         1)).getCategoryRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}改为消歧义页'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}改为消歧义页'
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}保留'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'CSD', wikitextformat, summary)
             else:
@@ -519,7 +519,7 @@ while True:
             # 移除分类
             elif remove_matchObj:
                 summary = '文件速删：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]提交<abbr title="<nowiki>{type}</nowiki>">速删</abbr>后被{{{{User|{user}|small=1}}}}保留'
+                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交<abbr title="<nowiki>{type}</nowiki>">速删</abbr>后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site, categorize(remove_matchObj, change), 'CSD',
                                 wikitextformat, summary, subtype=change['title'].split(':', 1)[1])
             else:
@@ -598,17 +598,17 @@ while True:
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
                         site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]] {talkat} %s' % (
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]] {talkat} %s' % (
                         target.title(), stat_text)
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
                     target = pywikibot.Page(site, remove_matchObj.group(
                         1)).getCategoryRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]] {talkat} %s' % (
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}重定向到[[:%s]] {talkat} %s' % (
                         target.title(), stat_text)
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}改为消歧义页 {talkat} %s' % stat_text
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}改为消歧义页 {talkat} %s' % stat_text
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}保留 {talkat} %s' % stat_text
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}保留 {talkat} %s' % stat_text
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'VFD', wikitextformat, summary)
                 try:
@@ -652,7 +652,7 @@ while True:
             # 移除分类
             elif remove_matchObj:
                 summary = '文件删除：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]提交文件删除讨论后被{{{{User|{user}|small=1}}}}保留 {talkat}'
+                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交文件删除讨论后被{{{{User|{user}|small=1}}}}保留 {talkat}'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'VFD', wikitextformat, summary)
             else:
@@ -674,7 +674,7 @@ while True:
             # 移除分类
             elif remove_matchObj:
                 summary = '移动到其他计划：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]建议{type}后被{{{{User|{user}|small=1}}}}保留'
+                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]建议{type}后被{{{{User|{user}|small=1}}}}保留'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'TRANS', wikitextformat, summary, subtype=change['title'].split(':', 1)[1])
             else:
@@ -695,7 +695,7 @@ while True:
             # 移除分类
             elif remove_matchObj:
                 summary = '侵权：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}解决了侵权问题'
+                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]被{{{{User|{user}|small=1}}}}解决了侵权问题'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'COPYVIO', wikitextformat, summary)
             else:
@@ -767,7 +767,7 @@ while True:
             # 移除分类
             elif remove_matchObj:
                 summary = '存废复核：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]提交存废复核后被{{{{User|{user}|small=1}}}}保留 ➡️ [[Wikipedia:存廢覆核請求#{title}|讨论结果]]'
+                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交存废复核后被{{{{User|{user}|small=1}}}}保留 ➡️ [[Wikipedia:存廢覆核請求#{title}|讨论结果]]'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'DRV', wikitextformat, summary)
             else:
@@ -798,9 +798,9 @@ while True:
                     vote_type = {'支持': ['{{support}}', '{{支持}}', '{{pro}}', '{{sp}}', '{{zc}}'], '反对': [
                         '{{oppose}}', '{{反对}}', '{{反對}}', '{{contra}}', '{{不同意}}', '{{o}}'], 'KEEP_ITEMS': ['支持', '反对']}
                     stat_text = vote_count(site, archive_content, vote_type)
-                    wikitextformat = '* {date}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]] %s' % stat_text
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]] %s' % stat_text
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已通过新条目推荐 ➡️ [[Talk:{title}#新条目推荐讨论|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'DYK', wikitextformat, summary, with_talk=True)
 
@@ -844,12 +844,12 @@ while True:
                         vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(site, section[1], vote_type)
-                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
-                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}|讨论存档]]'
                 summary = 'FL：+[[' + add_matchObj.group(1) + ']]'
                 process_catdata(site, categorize(
                     add_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
@@ -870,12 +870,12 @@ while True:
                         vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(site, section[1], vote_type)
-                        wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
-                        wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]评选特色列表失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'FC', wikitextformat, summary, with_talk=True)
 
@@ -894,12 +894,12 @@ while True:
                         vote_type = {'支持': ['{{yesfl}}'], '反对': ['{{nofl}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(site, section[1], vote_type)
-                        wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
-                        wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已撤销特色列表状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'FC', wikitextformat, summary, with_talk=True)
 
@@ -944,12 +944,12 @@ while True:
                         vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(site, section[1], vote_type)
-                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
-                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:典范条目|典范条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
                     add_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
 
@@ -969,12 +969,12 @@ while True:
                         vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(site, section[1], vote_type)
-                        wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
-                        wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]评选典范条目失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'FC', wikitextformat, summary, with_talk=True)
 
@@ -994,12 +994,12 @@ while True:
                         vote_type = {'支持': ['{{yesfa}}'], '反对': ['{{nofa}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(site, section[1], vote_type)
-                        wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
-                        wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已撤销典范条目状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'FC', wikitextformat, summary, with_talk=True)
 
@@ -1044,12 +1044,12 @@ while True:
                         vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(site, section[1], vote_type)
-                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
-                        wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:優良条目|優良条目]] ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(
                     add_matchObj, change), 'GA', wikitextformat, summary, with_talk=True)
 
@@ -1069,12 +1069,12 @@ while True:
                         vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(site, section[1], vote_type)
-                        wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
-                        wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]评选優良条目失败 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'GA', wikitextformat, summary, with_talk=True)
 
@@ -1094,12 +1094,12 @@ while True:
                         vote_type = {'支持': ['{{yesga}}'], '反对': ['{{noga}}'], '中立': ['{{neutral}}', '{{中立}}'], '意见': [
                             '{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'], 'KEEP_ITEMS': ['支持', '反对']}
                         stat_text = vote_count(site, section[1], vote_type)
-                        wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (
                             section[0], stat_text)
                     else:
-                        wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已撤销优良条目状态 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'GA', wikitextformat, summary, with_talk=True)
 
@@ -1127,9 +1127,9 @@ while True:
                     site, add_matchObj.group(1), sections_pattern)
                 if section[0]:
                     stat_text = '<small>（参与人数：<b>%d</b>）</small>' % users_count(site, remove_vote_result(section[1]))
-                    wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (section[0], stat_text)
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}#%s|讨论存档]] %s' % (section[0], stat_text)
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}|讨论存档]]'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已结束同行评审 ➡️ [[Talk:{title}|讨论存档]]'
                 process_catdata(site, categorize(add_matchObj, change),
                                 'PR', wikitextformat, summary, with_talk=True)
 
@@ -1162,6 +1162,7 @@ while True:
                             wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议拆分'
                         if splititem:
                             splitstr = ']]、[['.join(splititem)
+                            # 建议拆分到的页面与实际拆分到的页面未必一致，无法用于拆分完成后
                             wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议拆分到[[%s]] %s' % (splitstr, talking)
                         else:
                             wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}建议拆分 %s' % talking
@@ -1171,7 +1172,7 @@ while True:
             # 移除分类
             elif remove_matchObj:
                 summary = '拆分：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已经由{{{{User|{user}|small=1}}}}解决了拆分问题 {talkat}'
+                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已经由{{{{User|{user}|small=1}}}}解决了拆分问题 {talkat}'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'SPLIT', wikitextformat, summary)
             else:
@@ -1195,11 +1196,11 @@ while True:
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
                         site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}改为消歧义页'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]被{{{{User|{user}|small=1}}}}改为消歧义页'
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}移除了小小作品标记'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]被{{{{User|{user}|small=1}}}}移除了小小作品标记'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'SUB', wikitextformat, summary)
             else:
@@ -1223,11 +1224,11 @@ while True:
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
                         site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}改为消歧义页'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]被{{{{User|{user}|small=1}}}}改为消歧义页'
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}移除了关注度标记'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}移除了关注度标记'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'FAME', wikitextformat, summary)
             else:
@@ -1239,6 +1240,7 @@ while True:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
+                # 建议移动到的页面与实际移动到的页面未必一致，无法用于移动完成后
                 summary = '移动请求：+[[' + add_matchObj.group(1) + ']]'
                 for tuple in pywikibot.Page(site, add_matchObj.group(1)).templatesWithParams():
                     if tuple[0].title() == 'Template:Requested move':
@@ -1259,7 +1261,7 @@ while True:
             if add_matchObj:
                 summary = '移动请求：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]已完成了移动请求 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
+                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已完成了移动请求 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
                     1)
                 process_catdata(site,  categorize(
                     add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
@@ -1270,7 +1272,7 @@ while True:
             if add_matchObj:
                 summary = '移动请求：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {date}：[[:{title}]]的移动请求已被拒绝 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
+                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]的移动请求已被拒绝 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
                     1)
                 process_catdata(site,  categorize(
                     add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
@@ -1399,17 +1401,17 @@ while True:
                 if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
                     target = pywikibot.Page(
                         site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并到[[:%s]] {talkat}' % target.title()
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并到[[:%s]] {talkat}' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
                     target = pywikibot.Page(site, remove_matchObj.group(
                         1)).getCategoryRedirectTarget()
-                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并到[[:%s]] {talkat}' % target.title()
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并到[[:%s]] {talkat}' % target.title()
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并后改为消歧义页 {talkat}'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}合并后改为消歧义页 {talkat}'
                 elif not pywikibot.Page(site, remove_matchObj.group(1)).exists():
-                    wikitextformat = '* {date}：[[:{title}]]在解决了合并问题后被删除'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]在解决了合并问题后被删除'
                 else:
-                    wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}解决了合并问题 {talkat}'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}解决了合并问题 {talkat}'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'MM', wikitextformat, summary)
 
@@ -1432,7 +1434,7 @@ while True:
                     for dict in v:
                         if dict['title'] == change['title']:
                             summary = '-[[' + change['title'] + ']]已删除'
-                            wikitextformat = '* {{{{color|#72777d|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
+                            wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
                             stream_data = logdata(change)
                             if 'talkat' in dict:
                                 sections_pattern = re.compile(r'==+ *\[\[:(%s)\]\] *==+' % re.escape(change['title']))
@@ -1457,7 +1459,7 @@ while True:
                                     vote_content = extract_VFD_content(
                                         site, vfddata[change['title']], sections_pattern)
                                     stat_text = vote_count(site, vote_content, vote_type)
-                                    wikitextformat = '* {{{{color|#72777d|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat} %s' % stat_text
+                                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat} %s' % stat_text
                                     try:
                                         del vfddata[change['title']]
                                     except KeyError as e:
@@ -1516,7 +1518,7 @@ while True:
                         for dict in v:
                             if dict['title'] == change['title']:
                                 summary = '移动：-[[' + change['title'] + ']]'
-                                wikitextformat = '* {date}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">移动到</abbr>[[:{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
+                                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">移动到</abbr>[[:{moveto}]] <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                                 stream_data = logdata(change)
                                 stream_data['wikitext'] = wikitextformat.format(
                                     **stream_data)
