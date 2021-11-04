@@ -1437,6 +1437,7 @@ while True:
                             wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                             stream_data = logdata(change)
                             if 'talkat' in dict:
+                                stream_data['talkat'] =  dict['talkat']
                                 wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
                                 sections_pattern = re.compile(r'==+ *\[\[:(%s)\]\] *==+' % re.escape(change['title']))
                                 vote_type = {'保留': ['{{保留}}', '{{keep}}', '{{vk}}', '{{已打捞}}', '{{已打撈}}', '{{saved}}', '{{salvaged}}', '{{已}}', '{{快速保留}}', '{{sk}}', '{{speedy keep}}', '{{快保}}', '{{vtk}}', '{{暫時保留}}', '{{暂时保留}}'],
@@ -1470,8 +1471,8 @@ while True:
                             else:
                                 stream_data['talkat'] = ''
                                 wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
-                            stream_data['wikitext'] = wikitextformat.format(
-                                **stream_data)
+                            print(wikitextformat)
+                            stream_data['wikitext'] = wikitextformat.format(**stream_data)
                             print(stream_data)
                             v[i] = stream_data
                         i += 1
