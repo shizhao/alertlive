@@ -1469,8 +1469,10 @@ while True:
                                     dump_cache(vfd_file, vfddata)
                             else:
                                 stream_data['talkat'] = ''
+                                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
                             stream_data['wikitext'] = wikitextformat.format(
                                 **stream_data)
+                            print(stream_data)
                             v[i] = stream_data
                         i += 1
                 if cachestr != json.dumps(cache):
