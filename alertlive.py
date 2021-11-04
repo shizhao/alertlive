@@ -1483,7 +1483,7 @@ while True:
                         summary1 = summary + archive_summary  # [[Special:diff/68430264]]
                     else:
                         summary1 = summary
-                    print(stream_data)
+                    # print(stream_data)
                     # print(change)
                     print('Dump: ', file)
                     dump_cache('./alert_data/'+file, cache)
