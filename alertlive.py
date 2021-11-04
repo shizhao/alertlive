@@ -1471,9 +1471,9 @@ while True:
                             else:
                                 stream_data['talkat'] = ''
                                 wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
-                            print(wikitextformat)
+                            # print(wikitextformat)
                             stream_data['wikitext'] = wikitextformat.format(**stream_data)
-                            print(stream_data)
+                            # print(stream_data)
                             v[i] = stream_data
                         i += 1
                 if cachestr != json.dumps(cache):
@@ -1484,7 +1484,7 @@ while True:
                         summary1 = summary + archive_summary  # [[Special:diff/68430264]]
                     else:
                         summary1 = summary
-                    # print(stream_data)
+                    print(stream_data)
                     # print(change)
                     print('Dump: ', file)
                     dump_cache('./alert_data/'+file, cache)
