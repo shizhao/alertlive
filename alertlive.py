@@ -608,7 +608,7 @@ while True:
                 elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
                     wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}改为消歧义页 {talkat} %s' % stat_text
                 else:
-                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交存废讨论后被{{{{User|{user}|small=1}}}}保留 {talkat} %s' % stat_text
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}结束存废讨论 {talkat} %s' % stat_text
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'VFD', wikitextformat, summary)
                 try:
@@ -652,7 +652,7 @@ while True:
             # 移除分类
             elif remove_matchObj:
                 summary = '文件删除：-[[' + remove_matchObj.group(1) + ']]'
-                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交文件删除讨论后被{{{{User|{user}|small=1}}}}保留 {talkat}'
+                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}结束文件删除讨论 {talkat}'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'VFD', wikitextformat, summary)
             else:
@@ -1261,7 +1261,7 @@ while True:
             if add_matchObj:
                 summary = '移动请求：-[[' + \
                     add_matchObj.group(1).split(':', 1)[1] + ']]'
-                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已完成了移动请求 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
+                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}结束了移动请求 ➡️ [[%s|讨论存档]]' % add_matchObj.group(
                     1)
                 process_catdata(site,  categorize(
                     add_matchObj, change), 'MV', wikitextformat, summary, with_talk=True)
@@ -1411,7 +1411,7 @@ while True:
                 elif not pywikibot.Page(site, remove_matchObj.group(1)).exists():
                     wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]在解决了合并问题后被删除'
                 else:
-                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}解决了合并问题 {talkat}'
+                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}结束了合并问题 {talkat}'
                 process_catdata(site, categorize(
                     remove_matchObj, change), 'MM', wikitextformat, summary)
 
