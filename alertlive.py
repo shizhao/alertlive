@@ -1430,46 +1430,47 @@ while True:
                 cachestr = json.dumps(cache)
 
                 for k, v in cache.items():
-                    i = 0
-                    for dict in v:
-                        if dict['title'] == change['title']:
-                            summary = '-[[' + change['title'] + ']]已删除'
-                            wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
-                            stream_data = logdata(change)
-                            if 'talkat' in dict:
-                                stream_data['talkat'] =  dict['talkat']
-                                wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
-                                sections_pattern = re.compile(r'==+ *\[\[:(%s)\]\] *==+' % re.escape(change['title']))
-                                vote_type = {'保留': ['{{保留}}', '{{keep}}', '{{vk}}', '{{已打捞}}', '{{已打撈}}', '{{saved}}', '{{salvaged}}', '{{已}}', '{{快速保留}}', '{{sk}}', '{{speedy keep}}', '{{快保}}', '{{vtk}}', '{{暫時保留}}', '{{暂时保留}}'],
-                                    '删除': ['{{vd}}', '{{删除}}', '{{刪除}}', '{{del}}', '{{removal}}', '{{remove}}', '{{vsd}}', '{{快速刪除}}', '{{vn}}', '{{删后重建}}', '{{刪後重建}}', '{{vtn}}', '{{到時重建}}'],
-                                    '中立': ['{{neutral}}', '{{中立}}'],
-                                    '消歧义': ['{{vdab}}', '{{改為消歧義}}'],
-                                    '重定向': ['{{vr}}', '{{重定向}}', '{{重新導向}}'],
-                                    '移動': ['{{nvm}}', '{{不留重定向移動}}', '{{不留重新導向移動}}', '{{vmp}}', '{{vmove}}', '{{移動}}', '{{移动}}', '{{迁移}}', '{{转移}}', '{{move to}}', '{{userfy}}', '{{移动到用户页}}', '{{vmu}}', '{{移動到用戶頁}}', '{{移動至用戶頁}}', '{{迁移到用户页}}', '{{移動到使用者頁面}}'],
-                                    '合并': ['{{vm}}', '{{合并}}', '{{合併}}', '{{vmerge}}'],
-                                    '迁移到其他计划': ['{{vmd}}', '{{移動到詞典}}', '{{移动到词典}}', '{{vmt}}', '{{移動到辭典}}', '{{迁移到词典}}', '{{vms}}', '{{移動到文庫}}', '{{移动到文库}}', '{{迁移到文库}}', '{{vmb}}', '{{移動到教科書}}', '{{移动到教科书}}', '{{迁移到教科书}}', '{{vmq}}', '{{移動到語錄}}', '{{移动到语录}}', '{{迁移到语录}}', '{{vmvoy}}', '{{迁移到导游}}', '{{移动到导游}}', '{{移動到導遊}}', '{{vmv}}', '{{迁移到学院}}', '{{移動到學院}}'],
-                                    '意见': ['{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'],
-                                    'KEEP_ITEMS': ['保留', '删除']
-                                    }
-                                vfd_file = './alert_data/vfddata.json'
-                                try:
-                                    with open(vfd_file, 'r') as f:
-                                        vfddata = json.load(f)
-                                except FileNotFoundError:
-                                    vfddata = {}
-                                if change['title'] in vfddata and dict['talkat']:
-                                    vote_content = extract_VFD_content(
-                                        site, vfddata[change['title']], sections_pattern)
-                                    stat_text = vote_count(site, vote_content, vote_type)
-                                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat} %s' % stat_text
-                            else:
-                                stream_data['talkat'] = ''
+                    if k in ['VFD', 'CSD', 'COPYVIO', 'DRV']:
+                        i = 0
+                        for dict in v:
+                            if dict['title'] == change['title']:
+                                summary = '-[[' + change['title'] + ']]已删除'
                                 wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
-                            # print(wikitextformat)
-                            stream_data['wikitext'] = wikitextformat.format(**stream_data)
-                            # print(stream_data)
-                            v[i] = stream_data
-                        i += 1
+                                stream_data = logdata(change)
+                                if 'talkat' in dict:
+                                    stream_data['talkat'] =  dict['talkat']
+                                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat}'
+                                    sections_pattern = re.compile(r'==+ *\[\[:(%s)\]\] *==+' % re.escape(change['title']))
+                                    vote_type = {'保留': ['{{保留}}', '{{keep}}', '{{vk}}', '{{已打捞}}', '{{已打撈}}', '{{saved}}', '{{salvaged}}', '{{已}}', '{{快速保留}}', '{{sk}}', '{{speedy keep}}', '{{快保}}', '{{vtk}}', '{{暫時保留}}', '{{暂时保留}}'],
+                                        '删除': ['{{vd}}', '{{删除}}', '{{刪除}}', '{{del}}', '{{removal}}', '{{remove}}', '{{vsd}}', '{{快速刪除}}', '{{vn}}', '{{删后重建}}', '{{刪後重建}}', '{{vtn}}', '{{到時重建}}'],
+                                        '中立': ['{{neutral}}', '{{中立}}'],
+                                        '消歧义': ['{{vdab}}', '{{改為消歧義}}'],
+                                        '重定向': ['{{vr}}', '{{重定向}}', '{{重新導向}}'],
+                                        '移動': ['{{nvm}}', '{{不留重定向移動}}', '{{不留重新導向移動}}', '{{vmp}}', '{{vmove}}', '{{移動}}', '{{移动}}', '{{迁移}}', '{{转移}}', '{{move to}}', '{{userfy}}', '{{移动到用户页}}', '{{vmu}}', '{{移動到用戶頁}}', '{{移動至用戶頁}}', '{{迁移到用户页}}', '{{移動到使用者頁面}}'],
+                                        '合并': ['{{vm}}', '{{合并}}', '{{合併}}', '{{vmerge}}'],
+                                        '迁移到其他计划': ['{{vmd}}', '{{移動到詞典}}', '{{移动到词典}}', '{{vmt}}', '{{移動到辭典}}', '{{迁移到词典}}', '{{vms}}', '{{移動到文庫}}', '{{移动到文库}}', '{{迁移到文库}}', '{{vmb}}', '{{移動到教科書}}', '{{移动到教科书}}', '{{迁移到教科书}}', '{{vmq}}', '{{移動到語錄}}', '{{移动到语录}}', '{{迁移到语录}}', '{{vmvoy}}', '{{迁移到导游}}', '{{移动到导游}}', '{{移動到導遊}}', '{{vmv}}', '{{迁移到学院}}', '{{移動到學院}}'],
+                                        '意见': ['{{意见}}', '{{意見}}', '{{opinion}}', '{{comment}}', '{{cmt}}'],
+                                        'KEEP_ITEMS': ['保留', '删除']
+                                        }
+                                    vfd_file = './alert_data/vfddata.json'
+                                    try:
+                                        with open(vfd_file, 'r') as f:
+                                            vfddata = json.load(f)
+                                    except FileNotFoundError:
+                                        vfddata = {}
+                                    if change['title'] in vfddata and dict['talkat']:
+                                        vote_content = extract_VFD_content(
+                                            site, vfddata[change['title']], sections_pattern)
+                                        stat_text = vote_count(site, vote_content, vote_type)
+                                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat} %s' % stat_text
+                                else:
+                                    stream_data['talkat'] = ''
+                                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
+                                # print(wikitextformat)
+                                stream_data['wikitext'] = wikitextformat.format(**stream_data)
+                                # print(stream_data)
+                                v[i] = stream_data
+                            i += 1
                 if cachestr != json.dumps(cache):
                     dateclean_cache = dateclean(cache, archivetime)
                     cache = dateclean_cache[0]
