@@ -850,7 +850,7 @@ while True:
                         wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}#%s|讨论存档]]' % section[0]
                 else:
                     wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被评为[[Wikipedia:特色列表|特色列表]] ➡️ [[Talk:{title}|讨论存档]]'
-                summary = 'FL：+[[' + add_matchObj.group(1) + ']]'
+                summary = 'FL：+[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
                 process_catdata(site, categorize(
                     add_matchObj, change), 'FC', wikitextformat, summary, with_talk=True)
 
@@ -934,7 +934,7 @@ while True:
             add_matchObj = re.match(
                 alert_config.changecat['add'], change['comment'])
             if add_matchObj:
-                summary = 'FA：+[[' + add_matchObj.group(1) + ']]'
+                summary = 'FA：+[[' + add_matchObj.group(1).split(':', 1)[1] + ']]'
                 sections_pattern = re.compile(
                     r'==+ *(.*?典[范|範][條|条]目[評|评][選|选].*?) *==+')
                 section = extract_sections(
