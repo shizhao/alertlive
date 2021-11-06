@@ -1457,17 +1457,11 @@ while True:
                                         vfddata = json.load(f)
                                 except FileNotFoundError:
                                     vfddata = {}
-                                if change['title'] in vfddata:
+                                if change['title'] in vfddata and dict['talkat']:
                                     vote_content = extract_VFD_content(
                                         site, vfddata[change['title']], sections_pattern)
                                     stat_text = vote_count(site, vote_content, vote_type)
                                     wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small> {talkat} %s' % stat_text
-                                    try:
-                                        del vfddata[change['title']]
-                                    except KeyError as e:
-                                        print('KeyError: ', e)
-
-                                    dump_cache(vfd_file, vfddata)
                             else:
                                 stream_data['talkat'] = ''
                                 wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]已被{{{{User|{user}|small=1}}}}<abbr title="<nowiki>{reason}</nowiki>">删除</abbr> <small>（{{{{Plain link|{{{{fullurl:Special:log|logid={id}}}}}|log}}}}）</small>'
@@ -1490,6 +1484,18 @@ while True:
                     dump_cache('./alert_data/'+file, cache)
                     alertcheck(alert_page)
                     post2wiki(alert_page, workflows, cache, summary1)
+            vfd_file = './alert_data/vfddata.json'
+            try:
+                with open(vfd_file, 'r') as f:
+                    vfddata = json.load(f)
+            except FileNotFoundError:
+                vfddata = {}
+            try:
+                del vfddata[change['title']]
+                dump_cache(vfd_file, vfddata)
+            except KeyError as e:
+                print('delete KeyError: ', e)
+
 
         # ================保护=======================
         elif change['log_type'] == 'protect':
