@@ -302,69 +302,73 @@ def users_count(site, vote_content):
 
 def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', templates=None, subtype=None, with_talk=False):
     # 解析分类中数据
-    title = stream_data['title']
-    talk = talkpage(site, title)
-    # print(talk)
-    if talk.exists() and not talk.isRedirectPage():
-        # 从对话页获取WPJ模板
-        wpjdata = WPJcheck(site, title)
-        if wpjdata:
+    if (datetime.datetime.now() - datetime.datetime.strptime(stream_data['date'], "%Y-%m-%d")).days < 1:
+        # [[phab:T222885#7488419]]
+        title = stream_data['title']
+        talk = talkpage(site, title)
+        # print(talk)
+        if talk.exists() and not talk.isRedirectPage():
+            # 从对话页获取WPJ模板
+            wpjdata = WPJcheck(site, title)
+            if wpjdata:
 
-            print(wpjdata)
-            for wpj in wpjdata:
-                stream_data['type'] = subtype
-                if templates:
-                    for tuple in pywikibot.Page(site, title).templatesWithParams():
-                        if tuple[0].title() in templates:
-                            stream_data['reason'] = '，'.join(
-                                list(map(lambda str: str[str.find('=')+1:], tuple[1])))
-                if pywikibot.Page(site, title).isTalkPage() and with_talk:
-                    stream_data['title'] = pywikibot.Page(
-                        site, title).toggleTalkPage().title()
-                stream_data['wikitext'] = wikitextformat.format(**stream_data)
-                alert_page = wpj[1]['alert_page']
-                workflows = wpj[1]['workflows']
-                archivetime = wpj[1]['archivetime']
-                jsonfile = wpj[1]['jsonfile']
-                cache = load_cache('./alert_data/'+jsonfile)
-                try:
-                    cache_type = cache[alert_type]
-                except KeyError:
-                    cache[alert_type] = []
-                    cache_type = cache[alert_type]
+                print(wpjdata)
+                for wpj in wpjdata:
+                    stream_data['type'] = subtype
+                    if templates:
+                        for tuple in pywikibot.Page(site, title).templatesWithParams():
+                            if tuple[0].title() in templates:
+                                stream_data['reason'] = '，'.join(
+                                    list(map(lambda str: str[str.find('=')+1:], tuple[1])))
+                    if pywikibot.Page(site, title).isTalkPage() and with_talk:
+                        stream_data['title'] = pywikibot.Page(
+                            site, title).toggleTalkPage().title()
+                    stream_data['wikitext'] = wikitextformat.format(**stream_data)
+                    alert_page = wpj[1]['alert_page']
+                    workflows = wpj[1]['workflows']
+                    archivetime = wpj[1]['archivetime']
+                    jsonfile = wpj[1]['jsonfile']
+                    cache = load_cache('./alert_data/'+jsonfile)
+                    try:
+                        cache_type = cache[alert_type]
+                    except KeyError:
+                        cache[alert_type] = []
+                        cache_type = cache[alert_type]
 
-                if cache_type:
-                    cache_copy = cache_type.copy()
-                    n = 0
-                    for i in range(len(cache_copy)):
-                        if cache_type[i]['title'] == stream_data['title']:
-                            if 'talkat' in cache_type[i]:
-                                stream_data['talkat'] = cache_type[i]['talkat']
-                            if 'moveto' in cache_type[i]:
-                                stream_data['moveto'] = cache_type[i]['moveto']
-                            if 'splitto' in cache_type[i]:
-                                stream_data['splitto'] = cache_type[i]['splitto']
-                            stream_data['wikitext'] = wikitextformat.format(
-                                **stream_data)
-                            cache_type[i] = stream_data
-                        else:
-                            n += 1
-                    if len(cache_copy) == n:
+                    if cache_type:
+                        cache_copy = cache_type.copy()
+                        n = 0
+                        for i in range(len(cache_copy)):
+                            if cache_type[i]['title'] == stream_data['title']:
+                                if 'talkat' in cache_type[i]:
+                                    stream_data['talkat'] = cache_type[i]['talkat']
+                                if 'moveto' in cache_type[i]:
+                                    stream_data['moveto'] = cache_type[i]['moveto']
+                                if 'splitto' in cache_type[i]:
+                                    stream_data['splitto'] = cache_type[i]['splitto']
+                                stream_data['wikitext'] = wikitextformat.format(
+                                    **stream_data)
+                                cache_type[i] = stream_data
+                            else:
+                                n += 1
+                        if len(cache_copy) == n:
+                            cache_type.insert(0, stream_data)
+                    else:
                         cache_type.insert(0, stream_data)
-                else:
-                    cache_type.insert(0, stream_data)
-                dateclean_cache = dateclean(cache, archivetime)
-                cache = dateclean_cache[0]
-                archive_summary = dateclean_cache[1]
-                if archive_summary:
-                    summary1 = summary + archive_summary  # [[Special:diff/68430264]]
-                else:
-                    summary1 = summary
-                print(stream_data)
-                print('Dump: ', jsonfile)
-                dump_cache('./alert_data/'+jsonfile, cache)
-                alertcheck(alert_page)  # 每次更新时检查alert模板的参数有无变化
-                post2wiki(alert_page, workflows, cache, summary1)
+                    dateclean_cache = dateclean(cache, archivetime)
+                    cache = dateclean_cache[0]
+                    archive_summary = dateclean_cache[1]
+                    if archive_summary:
+                        summary1 = summary + archive_summary  # [[Special:diff/68430264]]
+                    else:
+                        summary1 = summary
+                    print(stream_data)
+                    print('Dump: ', jsonfile)
+                    dump_cache('./alert_data/'+jsonfile, cache)
+                    alertcheck(alert_page)  # 每次更新时检查alert模板的参数有无变化
+                    post2wiki(alert_page, workflows, cache, summary1)
+    else:
+        print('Error: EventStreams date error')
 
 # 对分类改变的处理，弃用
 
