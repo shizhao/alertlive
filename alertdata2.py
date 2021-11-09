@@ -90,6 +90,6 @@ for data in alert_data:
         alert_data.remove(data)
         print('REMOVE: ', data)
 
-with open('./alert_data/alert_data.json', 'w') as f:
-    json.dump(alert_data, f)
-    print('CLEAN: ', alert_data)
+        with open('./alert_data/alert_data.json', 'w') as f:
+            json.dump(alert_data, f)
+            print('CLEAN: ', alert_data)
