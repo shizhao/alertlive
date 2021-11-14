@@ -203,7 +203,8 @@ def extract_sections(site, title, sections_pattern):
     page = pywikibot.Page(site, title)
     wikitext = page.text
     result = textlib.extract_sections(wikitext, site)
-
+    section_title = ''
+    section_content = ''
     for s in result.sections:
         math_section_title = sections_pattern.search(s.title)
         if math_section_title:
