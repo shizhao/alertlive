@@ -174,20 +174,22 @@ def post2wiki(alert_page, workflows, cache, summary):
     print(summary)
     if text:
         wikipage = pywikibot.Page(site, alert_page)
-        wikitext = wikipage.text
-        try:
-            text_head = re.search(r'(?P<head><noinclude>.*?\{\{ArticleAlertbot\|.*?\}\}.*?</noinclude>)',
-                                  wikitext, re.S).group('head') + text_head
-        except AttributeError as e:
-            print(e)
-            print('text_head格式不对')
-        try:
-            text_foot += re.search(
-                r'(?P<foot><noinclude>\{\{ArticleAlertbot\/foot\}\}.*?</noinclude>)', wikitext, re.S).group('foot')
-        except AttributeError as e:
-            print(e)
-            print('text_foot格式不对或不存在')
-            text_foot += '<noinclude>{{ArticleAlertbot/foot}}</noinclude>'
+        if wikipage.exists():
+            wikitext = wikipage.text
+            try:
+                text_head = re.search(r'(?P<head><noinclude>.*?\{\{ArticleAlertbot\|.*?\}\}.*?</noinclude>)', wikitext, re.S).group('head') + text_head
+            except AttributeError as e:
+                print(e)
+                print('text_head格式不对')
+            try:
+                text_foot += re.search(
+                    r'(?P<foot><noinclude>\{\{ArticleAlertbot\/foot\}\}.*?</noinclude>)', wikitext, re.S).group('foot')
+            except AttributeError as e:
+                print(e)
+                print('text_foot格式不对或不存在')
+                text_foot += '<noinclude>{{ArticleAlertbot/foot}}</noinclude>'
+        else:
+            print(alert_page, '不存在')
     else:
         print('text没有数据')
         text = '目前没有新的条目状态通告。'
