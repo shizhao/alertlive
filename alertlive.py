@@ -465,28 +465,30 @@ while True:
             remove_matchObj = re.match(
                 alert_config.changecat['remove'], change['comment'])
             if add_matchObj:
-                wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">速删</abbr>'
-                summary = '速删：+[[' + add_matchObj.group(1) + ']]'
-                process_catdata(site, categorize(add_matchObj, change), 'CSD',
-                                wikitextformat, summary, templates=['Template:Delete'])
+                if not pywikibot.Page(site, add_matchObj.group(1)).isTalkPage():
+                    wikitextformat = '* {date}：[[:{title}]]被{{{{User|{user}|small=1}}}}提交<abbr title="{reason}">速删</abbr>'
+                    summary = '速删：+[[' + add_matchObj.group(1) + ']]'
+                    process_catdata(site, categorize(add_matchObj, change), 'CSD',
+                                    wikitextformat, summary, templates=['Template:Delete'])
             # 移除分类
             elif remove_matchObj:
-                summary = '速删：-[[' + remove_matchObj.group(1) + ']]'
-                # stream_data = categorize(remove_matchObj, change)
-                if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
-                    target = pywikibot.Page(
-                        site, remove_matchObj.group(1)).getRedirectTarget()
-                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
-                elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
-                    target = pywikibot.Page(site, remove_matchObj.group(
-                        1)).getCategoryRedirectTarget()
-                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
-                elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
-                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}改为消歧义页'
-                else:
-                    wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}保留'
-                process_catdata(site, categorize(
-                    remove_matchObj, change), 'CSD', wikitextformat, summary)
+                if not pywikibot.Page(site, remove_matchObj.group(1)).isTalkPage():
+                    summary = '速删：-[[' + remove_matchObj.group(1) + ']]'
+                    # stream_data = categorize(remove_matchObj, change)
+                    if pywikibot.Page(site, remove_matchObj.group(1)).isRedirectPage():
+                        target = pywikibot.Page(
+                            site, remove_matchObj.group(1)).getRedirectTarget()
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
+                    elif pywikibot.Page(site, remove_matchObj.group(1)).isCategoryRedirect():
+                        target = pywikibot.Page(site, remove_matchObj.group(
+                            1)).getCategoryRedirectTarget()
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}重定向到[[:%s]]' % target.title()
+                    elif pywikibot.Page(site, remove_matchObj.group(1)).isDisambig():
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}改为消歧义页'
+                    else:
+                        wikitextformat = '* {{{{color|darkred|{date}}}}}：[[:{title}]]提交速删后被{{{{User|{user}|small=1}}}}保留'
+                    process_catdata(site, categorize(
+                        remove_matchObj, change), 'CSD', wikitextformat, summary)
             else:
                 print('Cannot match the comment text in categorize: %s' %
                       change['comment'])
