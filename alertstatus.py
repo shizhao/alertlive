@@ -25,7 +25,7 @@ def qstat_status():
 def status_out(qstat_data):
     status = qstat_data[2]
     qstat_fullout = qstat_data[0]
-    qstat_moreout = os.popen('qstat -j alertlive-beta').read()
+    qstat_moreout = os.popen('qstat -j alertlive').read()
     text = """{{#ifeq: {{{1|n}}}|y|
 {{User:Alertlivebot/Status2|status=%s|image=y}}
 |
