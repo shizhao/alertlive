@@ -309,6 +309,7 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
         # [[phab:T222885#7488419]]
         title = stream_data['title']
         talk = talkpage(site, title)
+        cache = None
         # print(talk)
         if talk.exists() and not talk.isRedirectPage():
             # 从对话页获取WPJ模板
