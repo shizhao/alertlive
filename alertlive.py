@@ -6,6 +6,7 @@ import json
 import datetime
 import alert_config
 import pywikibot.textlib as textlib
+# import gc
 
 site = pywikibot.Site()
 site.login()
@@ -372,8 +373,11 @@ def process_catdata(site, stream_data, alert_type, wikitextformat, summary='', t
                     dump_cache('./alert_data/'+jsonfile, cache)
                     alertcheck(alert_page)  # 每次更新时检查alert模板的参数有无变化
                     post2wiki(alert_page, workflows, cache, summary1)
+
     else:
         print('Error: EventStreams date error')
+    del cache, cache_copy, cache_type, stream_data
+    # gc.collect() # 尝试强制释放内存
 
 # 对分类改变的处理，弃用
 
