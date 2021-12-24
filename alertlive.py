@@ -198,7 +198,7 @@ def post2wiki(alert_page, workflows, cache, summary):
     # print(text)
     # 正式运行
     wikipage.text = text
-    wikipage.save(summary)
+    wikipage.save(summary, minor=False)
 
 
 # 存档内容处理，提取章节标题和内容
