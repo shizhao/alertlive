@@ -560,6 +560,10 @@ while True:
                         for p in Params_tuple[1]:
                             if p.split('=', 1)[0].lower() == 'date':
                                 vfddate = p.split('=', 1)[1]
+                                # fix [[Topic:Wn61lvbq79g4rq9h]]
+                                if re.match(r'(\d{4})-(\d{2})-(\d)', vfddate):
+                                    vfddate = re.sub(r'(\d{4})-(\d{2})-(\d)', r'\1/\2/\3', vfddate)
+
                 if vfddate:
                     vfd_file = './alert_data/vfddata.json'
                     try:
