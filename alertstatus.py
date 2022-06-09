@@ -10,7 +10,7 @@ def qstat_status():
     if 'alertlive' in qstat_out:
         # print (qstat_out)
         status = re.search(
-            r'\d(.*?\s){2}alertlive(.*?\s){2}(?P<status>r|qw|d|E|s)', qstat_out, re.S).group('status')
+            r'\d(.*?\s){2}alertlive(.*?\s){2}(?P<status>r|qw|d|E|s|Rr)', qstat_out, re.S).group('status')
         # alert_line = re.search(
         #    r'\n(?P<alert>\d.*?alertlive.*?)\n', qstat_out, re.S).group('alert')
         check = int(re.search(
