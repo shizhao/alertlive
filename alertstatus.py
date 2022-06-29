@@ -31,7 +31,7 @@ def status_out(qstat_data):
 |
 {{notice
 |image = {{User:Alertlivebot/Status2|status=%s|image=y}}
-|当前[[User:Alertlivebot/Status|运行状态]]：{{User:Alertlivebot/Status2|status=%s|text=y}}<small>（最后检查于{{#time: Y-m-d H:i:s|{{REVISIONTIMESTAMP:User:Alertlivebot/Status}}}} UTC{{purge|刷新}}</small>
+|当前[[User:Alertlivebot/Status|运行状态]]：{{User:Alertlivebot/Status2|status=%s|text=y}}<small>（最后检查于{{#time: Y-m-d H:i:s|{{REVISIONTIMESTAMP:User:Alertlivebot/Status}}}} UTC {{purge|刷新}}）</small>
 }}
 }}<noinclude>
 ==运行状态==
