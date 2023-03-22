@@ -10,8 +10,11 @@ def jobs_status():
     # Read the output of the command
     jobs_out = jobs.read()
     # Use a regular expression to search for the job status in the output
-    status = re.search(
-        r'Status:\s+?\|\s+?(?P<status>.*?)\s+?', jobs_out, re.S).group('status')
+    try:
+        status = re.search(
+            r'Status:\s+?\|\s+?(?P<status>.*?)\s+?', jobs_out, re.S).group('status')
+    except:
+        status = ''
     # Return the job status and the full output of the command
     return (status, jobs_out)
 
